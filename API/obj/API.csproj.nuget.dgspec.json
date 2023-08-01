@@ -1,17 +1,110 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj": {}
+    "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj": {
+    "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj",
+        "projectUniqueName": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj",
+        "projectPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj",
         "packagesPath": "C:\\Users\\Obaida\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\obj\\",
+        "outputPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Obaida\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Infrastructure\\Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.13, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.13, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.13, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "target": "Package",
+              "version": "[6.0.13, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.2.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.405\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj",
+        "projectName": "Core",
+        "projectPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj",
+        "packagesPath": "C:\\Users\\Obaida\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -44,10 +137,90 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.405\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Infrastructure\\Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Infrastructure\\Infrastructure.csproj",
+        "projectName": "Infrastructure",
+        "projectPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Infrastructure\\Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\Obaida\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Obaida\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj": {
+                "projectPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
           "dependencies": {
-            "Swashbuckle.AspNetCore": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[6.2.3, )"
+              "version": "[6.0.13, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.13, )"
+            },
+            "Microsoft.EntityFrameworkCore.Proxies": {
+              "target": "Package",
+              "version": "[6.0.13, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.13, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "target": "Package",
+              "version": "[6.0.13, )"
             }
           },
           "imports": [
@@ -62,9 +235,6 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
-            "Microsoft.AspNetCore.App": {
-              "privateAssets": "none"
-            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }

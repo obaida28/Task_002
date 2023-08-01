@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj": {}
+    "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj": {
+    "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj",
+        "projectUniqueName": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj",
         "projectName": "Core",
-        "projectPath": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj",
+        "projectPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj",
         "packagesPath": "C:\\Users\\Obaida\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\obj\\",
+        "outputPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
