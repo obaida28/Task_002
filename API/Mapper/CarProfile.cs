@@ -7,7 +7,7 @@ public class CarProfile : Profile
 {
     public CarProfile()
     {
-        CreateMap < CarDTO, Car > ()
+        CreateMap < CreateUpdateCarDto, Car > ()
         .ForMember(
             dest => dest.Rentals  ,opt => opt.MapFrom(src => 
                 new List<Rental> { 
@@ -15,7 +15,7 @@ public class CarProfile : Profile
                     DriverId = src.DriverId , CarId = src.CarId} }
             ));
 
-         CreateMap<Car, CarView>()
+         CreateMap<Car, CarDTO>()
             .ForMember(dest => dest.DriverName, opt => opt.MapFrom(src => getDrivers(src)))
             .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => getCustomers(src)));
     }

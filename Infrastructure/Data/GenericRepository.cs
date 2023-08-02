@@ -34,7 +34,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
     public async Task<bool> IsExist(Guid id)
     {
-        return GetById(id) != null;
+        return await _context.Set<T>().AnyAsync(e => e.Id == id);
     }
 
     public void Update(T entity)

@@ -1,5 +1,4 @@
 using Core.Entites;
-using Core.ViewModels;
 
 namespace Core.Interfaces;
 public interface ICarService
@@ -10,6 +9,6 @@ public interface ICarService
     Task<bool> DeleteCar(Guid id);
     Task<List<Car>> GetAllCars();
     Task<Car> GetCarById(Guid id);
-    List<Car> Getfilter(CarFilter dto);
+    //List<Car> Getfilter(CarFilter dto);
     Task<IEnumerable<Car>> GetCarsByCache();
 }

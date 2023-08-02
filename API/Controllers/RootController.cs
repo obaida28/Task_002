@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using Core.Entites;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -13,20 +14,20 @@ namespace API.Controllers
         where TRepository : IGenericRepository<BaseEntity>
     {
         private readonly TRepository repository;
-        public RootController(TRepository repository)
+        public RootController(TRepository repository) 
         {
             this.repository = repository;
         }
         // GET: api/[controller]
         [HttpGet]
-        public async Task<ActionResult<List<TEntity>>> Get()
+        public virtual async Task<IActionResult> Get()
         {
             return Ok(await repository.GetAll());
         }
 
         // GET: api/[controller]/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TEntity>> Get(Guid id)
+        public virtual async Task<IActionResult> Get(Guid id)
         {
             var movie = await repository.GetById(id);
             if (movie == null)
@@ -38,7 +39,7 @@ namespace API.Controllers
 
         // PUT: api/[controller]/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid id, TEntity entity)
+        public virtual async Task<IActionResult> Put(Guid id, TEntity entity)
         {
             if (id != entity.Id)
             {
@@ -50,7 +51,7 @@ namespace API.Controllers
 
         // POST: api/[controller]
         [HttpPost]
-        public async Task<ActionResult<TEntity>> Post(TEntity entity)
+        public virtual async Task<IActionResult> Post(TEntity entity)
         {
             repository.Add(entity);
             return CreatedAtAction("Get", new { id = entity.Id }, entity);
@@ -58,7 +59,7 @@ namespace API.Controllers
 
         // DELETE: api/[controller]/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<TEntity>> Delete(Guid id)
+        public virtual async Task<ActionResult<TEntity>> Delete(Guid id)
         {
             var entity = await repository.Delete(id);
             if (entity == null)
