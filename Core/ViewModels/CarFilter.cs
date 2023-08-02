@@ -1,4 +1,4 @@
-namespace API.DTOs;
+namespace Core.ViewModels;
 public class CarFilter
 {
     public bool WithPaging { get; set; }

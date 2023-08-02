@@ -25,6 +25,8 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         return await _context.Set<T>().ToListAsync();
     }
 
+    public DbSet<T> GetAllBeforeExecute() =>  _context.Set<T>();
+
     public async Task<T> GetById(Guid id)
     {
         return await _context.Set<T>().FindAsync(id);
