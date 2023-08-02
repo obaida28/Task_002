@@ -37,10 +37,12 @@ public class CarService : ICarService
         _repository.Update(car);
         await _cache.UpdateCache(car);
     }
-    public async Task DeleteCar(Guid id) 
+    public async Task<bool> DeleteCar(Guid id) 
     {
-        await _repository.Delete(id);
+        var entity = await _repository.Delete(id);
+        if(entity == null) return false;
         await _cache.DeleteFromCache(id);
+        return true;
     }     
     public List<Car> Getfilter(CarFilter dto)
     {
