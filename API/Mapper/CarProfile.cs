@@ -7,7 +7,15 @@ public class CarProfile : Profile
 {
     public CarProfile()
     {
-        CreateMap < CreateUpdateCarDto, Car > ()
+        CreateMap < CarCreateDto, Car > ()
+        .ForMember(
+            dest => dest.Rentals  ,opt => opt.MapFrom(src => 
+                new List<Rental> { 
+                    new Rental { CustomerId = (Guid)src.CustomerId , 
+                    DriverId = src.DriverId } }
+            ));
+
+        CreateMap < CarUpdateDto, Car > ()
         .ForMember(
             dest => dest.Rentals  ,opt => opt.MapFrom(src => 
                 new List<Rental> { 

@@ -1,7 +1,7 @@
 namespace API.DTOs;
-public class CreateUpdateCarDto
+public class CarCreateDto
 {
-    public Guid CarId { get; set; }
+    public string CarNumber { get; set; }
     public string Type { get; set; }
     public decimal EngineCapacity { get; set; }
     public string Color { get; set; }

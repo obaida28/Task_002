@@ -10,24 +10,15 @@ using System.Linq;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class CarController : ControllerBase //RootController<Car,ICarRepository>
+public class CarController : ControllerBase 
 {
-    // private readonly ICarService _service;
-    private readonly IGenericRepository<Car> _repository;
+    private readonly ICarRepository _repository;
     protected readonly IMapper _map;
-    public CarController(IGenericRepository<Car> repository , IMapper map) //: base(repository)
+    public CarController(ICarRepository repository , IMapper map) //: base(repository)
     {
         _repository = repository;
         _map = map;
     } 
-    
-    // [HttpGet]
-    // public async Task<IActionResult> Paging(PagingModel<Car> inputData)
-    // {
-    //     var query = _repository.GetAllBeforeExecute();
-    //     var result = await query.GetPagedResult(inputData.CurrentPage, inputData.RowsPerPage, inputData.OrderByData, false);
-    //     return (IActionResult)result;
-    // }
     
     [HttpGet(template : "All")]
     public async Task<IActionResult> GetListAsync(CarRequestDTO input) 
@@ -43,19 +34,15 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
         var getCar = await _repository.GetByIdAsync(id);
         var car = _map.Map<CarDTO>(getCar);
         return Ok(car);
-        // var car = await base.Get(id);
-        // var carView = _map.Map<CarView>(car);
-        // return (IActionResult)carView;
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(CreateUpdateCarDto carDTO)
+    public async Task<IActionResult> CreateAsync(CarCreateDto carDTO)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         Car car = _map.Map<Car>(carDTO);
-        //bool isExist = await _service.IsExist(carDTO.CarId);
-        bool isExist = await _repository.IsExistAsync(carDTO.CarId);
+        bool isExist = await _repository.IsExistAsync(carDTO.CarNumber);
         if(isExist)
             return BadRequest("The car number is unique !");
         _repository.Add(car);
@@ -63,7 +50,7 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(Guid id, CreateUpdateCarDto carDTO)
+    public IActionResult Update(Guid id, CarUpdateDto carDTO)
     {
         if (id != carDTO.CarId)
             return BadRequest();

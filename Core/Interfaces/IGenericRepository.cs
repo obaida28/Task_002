@@ -9,6 +9,4 @@ public interface IGenericRepository<T> where T : BaseEntity
     Task<T> DeleteAsync(Guid id);
     Task<T> GetByIdAsync(Guid id);
     IQueryable<T> GetAll();
-    // DbSet<T> GetAllBeforeExecute();
-    Task<bool> IsExistAsync(Guid id);
 }
