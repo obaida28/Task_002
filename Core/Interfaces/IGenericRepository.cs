@@ -8,7 +8,7 @@ public interface IGenericRepository<T> where T : BaseEntity
     void Update(T entity);
     Task<T> DeleteAsync(Guid id);
     Task<T> GetByIdAsync(Guid id);
-    Task<IQueryable<T>> GetAllAsync();
+    IQueryable<T> GetAll();
     // DbSet<T> GetAllBeforeExecute();
     Task<bool> IsExistAsync(Guid id);
 }

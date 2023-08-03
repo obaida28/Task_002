@@ -33,8 +33,7 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
     public async Task<IActionResult> GetListAsync(CarRequestDTO input) 
     {
         var query = _repository.GetAll().Where($"{input.SearchingColumn} = @0", input.SearchingValue);
-        var finalQuery = await query.GetPagedResult(input.CurrentPage, input.RowsPerPage, input.OrderByData, input.SortOrder);
-        var getCars = await finalQuery.ToListAsync();
+        var getCars = await query.GetPagedResult(input.CurrentPage, input.RowsPerPage, input.OrderByData, false);
         var carList = _map.Map<List<CarDTO>>(getCars);
         return Ok(carList);
     }

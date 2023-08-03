@@ -10,8 +10,6 @@ public class PagingModel<T> where T: class
   public int TotalRows { get; set; }
 
   public string OrderByData { get; set; }
-  
-  public string SortOrder { get; set; }
 
   public IEnumerable<T> Results { get; set; } = Array.Empty<T>();
 
