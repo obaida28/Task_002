@@ -30,14 +30,13 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
     // }
     
     [HttpGet(template : "All")]
-    public IActionResult GetListAsync(CarRequestDTO input) 
+    public async Task<IActionResult> GetListAsync(CarRequestDTO input) 
     {
-        var getCars = _repository.GetAll();
+        var query = _repository.GetAll().Where($"{input.SearchingColumn} = @0", input.SearchingValue);
+        var finalQuery = await query.GetPagedResult(input.CurrentPage, input.RowsPerPage, input.OrderByData, input.SortOrder);
+        var getCars = await finalQuery.ToListAsync();
         var carList = _map.Map<List<CarDTO>>(getCars);
         return Ok(carList);
-        // var allCars = await base.Get();
-        // var cars = _map.Map<List<CarView>>(allCars);
-        // return (IActionResult)cars;
     }
     [HttpGet("{id}")]
     public async Task<IActionResult> GetAsync(Guid id) 
