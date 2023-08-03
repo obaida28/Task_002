@@ -1,15 +1,16 @@
 using Core.Interfaces;
 using Infrastructure.Data;
-using Infrastructure.Services;
+// using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ICarRepository, CarRepository>();
-builder.Services.AddScoped<ICarCache, CarCache>();
-builder.Services.AddScoped<ICarService, CarService>();
-builder.Services.AddScoped(typeof(IGenericCache<>), typeof(GenericCache<>));
+// builder.Services.AddScoped<ICarCache, CarCache>();
+// builder.Services.AddScoped<ICarService, CarService>();
+// builder.Services.AddScoped(typeof(IGenericCache<>), typeof(GenericCache<>));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -4,6 +4,8 @@ using AutoMapper;
 using Core.Entites;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Dynamic.Core;
+using System.Linq;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
@@ -19,18 +21,18 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
         _map = map;
     } 
     
-    [HttpGet]
-    public async Task<IActionResult> Paging(PagingModel<Car> inputData)
-    {
-        var query = _repository.GetAllBeforeExecute();
-        var result = await query.GetPagedResult(inputData.CurrentPage, inputData.RowsPerPage, inputData.OrderByData, false);
-        return (IActionResult)result;
-    }
+    // [HttpGet]
+    // public async Task<IActionResult> Paging(PagingModel<Car> inputData)
+    // {
+    //     var query = _repository.GetAllBeforeExecute();
+    //     var result = await query.GetPagedResult(inputData.CurrentPage, inputData.RowsPerPage, inputData.OrderByData, false);
+    //     return (IActionResult)result;
+    // }
     
     [HttpGet(template : "All")]
-    public async Task<IActionResult> ReadAll() 
+    public IActionResult GetListAsync(CarRequestDTO input) 
     {
-        var getCars = await _repository.GetAll();
+        var getCars = _repository.GetAll();
         var carList = _map.Map<List<CarDTO>>(getCars);
         return Ok(carList);
         // var allCars = await base.Get();
@@ -38,9 +40,9 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
         // return (IActionResult)cars;
     }
     [HttpGet("{id}")]
-    public async Task<IActionResult> ReadById(Guid id) 
+    public async Task<IActionResult> GetAsync(Guid id) 
     {
-        var getCar = await _repository.GetById(id);
+        var getCar = await _repository.GetByIdAsync(id);
         var car = _map.Map<CarDTO>(getCar);
         return Ok(car);
         // var car = await base.Get(id);
@@ -49,13 +51,13 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateCar(CreateUpdateCarDto carDTO)
+    public async Task<IActionResult> CreateAsync(CreateUpdateCarDto carDTO)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         Car car = _map.Map<Car>(carDTO);
         //bool isExist = await _service.IsExist(carDTO.CarId);
-        bool isExist = await _repository.IsExist(carDTO.CarId);
+        bool isExist = await _repository.IsExistAsync(carDTO.CarId);
         if(isExist)
             return BadRequest("The car number is unique !");
         _repository.Add(car);
@@ -63,7 +65,7 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateCar(Guid id, CreateUpdateCarDto carDTO)
+    public IActionResult Update(Guid id, CreateUpdateCarDto carDTO)
     {
         if (id != carDTO.CarId)
             return BadRequest();
@@ -73,9 +75,9 @@ public class CarController : ControllerBase //RootController<Car,ICarRepository>
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCar(Guid id)
+    public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        var car = await _repository.Delete(id);
+        var car = await _repository.DeleteAsync(id);
         if(car == null) return NotFound();
         return NoContent();
     }

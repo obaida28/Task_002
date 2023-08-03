@@ -1,5 +1,5 @@
 namespace Core.Entites;
-public class Rental
+public class Rental : BaseEntity
 {
     public Guid CarId { get; set; }
     public virtual Car Car { get; set; }

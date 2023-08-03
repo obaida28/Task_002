@@ -28,7 +28,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Driver>()
             .HasOne(d => d.Substitute)
             .WithOne()
-            .HasForeignKey<Driver>(d => d.SubstitDriverId)
+            .HasForeignKey<Driver>(d => d.SubstituteDriverId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Driver>().HasData(

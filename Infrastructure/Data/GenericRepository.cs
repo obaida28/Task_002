@@ -1,6 +1,7 @@
 using Core.Entites;
 using Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Infrastructure.Data;
 public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
@@ -12,27 +13,27 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         _context.Set<T>().Add(entity);
     }
 
-    public async Task<T> Delete(Guid id)
+    public async Task<T> DeleteAsync(Guid id)
     {
-        var entity = await GetById(id);
+        var entity = await GetByIdAsync(id);
         if(entity == null) return entity;
         _context.Set<T>().Remove(entity);
         return entity;
     }
 
-    public async Task<List<T>> GetAll()
+    public IQueryable<T> GetAll()
     {
-        return await _context.Set<T>().ToListAsync();
+        return _context.Set<T>().AsQueryable();
     }
 
-    public DbSet<T> GetAllBeforeExecute() =>  _context.Set<T>();
+    //public DbSet<T> GetAllBeforeExecute() =>  _context.Set<T>();
 
-    public async Task<T> GetById(Guid id)
+    public async Task<T> GetByIdAsync(Guid id)
     {
         return await _context.Set<T>().FindAsync(id);
     }
 
-    public async Task<bool> IsExist(Guid id)
+    public async Task<bool> IsExistAsync(Guid id)
     {
         return await _context.Set<T>().AnyAsync(e => e.Id == id);
     }

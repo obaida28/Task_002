@@ -7573,11 +7573,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj",
+      "projectUniqueName": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Task_002\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\API.csproj",
+      "projectPath": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Task_002\\API\\API.csproj",
       "packagesPath": "C:\\Users\\Obaida\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\API\\obj\\",
+      "outputPath": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Task_002\\API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -7599,8 +7599,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Infrastructure\\Infrastructure.csproj": {
-              "projectPath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Infrastructure\\Infrastructure.csproj"
+            "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Task_002\\Infrastructure\\Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Task_002\\Infrastructure\\Infrastructure.csproj"
             }
           }
         }

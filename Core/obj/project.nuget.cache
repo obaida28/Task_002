@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "eXKZN9nE3OiPFydEkL8NpQum0nfW0rzVBzLSn9goeyYKI/PVgJvrFA9HhoOC+X3YK9E1qiFcRj7egZN93+aHeg==",
+  "dgSpecHash": "a72tG1ULJZsnXfL/7Nv8vQ1hIY/YYC8+9N9YfqeFZNcPtxiNOp+gVxJmnRQlkZj7y0zEZDEEgCk8g6GvXnoK1g==",
   "success": true,
-  "projectFilePath": "c:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Core\\Core.csproj",
+  "projectFilePath": "C:\\Users\\Obaida\\Desktop\\Projects\\EMENU\\Task_002\\Task_002\\Core\\Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Obaida\\.nuget\\packages\\castle.core\\4.4.1\\castle.core.4.4.1.nupkg.sha512",
     "C:\\Users\\Obaida\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
