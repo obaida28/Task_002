@@ -5,7 +5,6 @@ using Core.Entites;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Dynamic.Core;
-using System.Linq;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
@@ -43,10 +42,10 @@ public class CarController : ControllerBase
     public async Task<CarDTO> CreateAsync(CarCreateDto carDTO)
     {
         if (!ModelState.IsValid)
-            throw new Exception("Validation failed. Please check the input and correct any errors.");
+            throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
         Car car = _map.Map<Car>(carDTO);
         bool isExist = await _repository.IsExistAsync(carDTO.CarNumber);
-        if(isExist) throw new Exception("The car number is unique !");
+        if(isExist) throw new BadHttpRequestException("The car number is unique !");
         _repository.Add(car);
         var res = _map.Map<CarDTO>(car);
         return res;
@@ -56,7 +55,7 @@ public class CarController : ControllerBase
     public void Update(Guid id, CarUpdateDto carDTO)
     {
         if (id != carDTO.CarId)
-            throw new Exception("Object id is not compatible with the pass id");
+            throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Car car = _map.Map<Car>(carDTO);
         _repository.Update(car);
     }
@@ -64,7 +63,7 @@ public class CarController : ControllerBase
     [HttpDelete("{id}")]
     public async Task DeleteAsync(Guid id)
     {
-        var entity = await _repository.GetByIdAsync(id) ?? throw new Exception("This id is invalid");
+        var entity = await _repository.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
         _repository.Delete(entity);
     }
 }
