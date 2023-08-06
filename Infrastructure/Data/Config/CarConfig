@@ -1,0 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+namespace Infrastructure.Data;
+public class CarConfig : IEntityTypeConfiguration<Car>
+{
+    public void Configure(EntityTypeBuilder<Car> builder)
+    {
+        //uilder.property.
+    }
+}

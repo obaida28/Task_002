@@ -6,7 +6,7 @@ public interface IGenericRepository<T> where T : BaseEntity
 {
     void Add(T entity);
     void Update(T entity);
-    Task<T> DeleteAsync(Guid id);
+    void Delete(T entity);
     Task<T> GetByIdAsync(Guid id);
-    IQueryable<T> GetAll();
+    IQueryable<T> GetQueryable();
 }

@@ -22,46 +22,48 @@ public class CustomerController : ControllerBase //RootController<Car,ICarReposi
     } 
        
     [HttpGet(template : "All")]
-    public async Task<IActionResult> GetListAsync(CustomerRequestDTO input) 
+    public async Task<PagingModel<Customer>> GetListAsync(CustomerRequestDTO input) 
     {
-        var query = _repository.GetAll().Where($"{input.SearchingColumn} = @0", input.SearchingValue);
-        var getCustomers = await query.GetPagedResult(input.CurrentPage, input.RowsPerPage, input.OrderByData, false);
-        var customerList = _map.Map<List<CustomerDTO>>(getCustomers);
-        return Ok(customerList);
+       var query = _repository.GetQueryable();
+        var searchingResult = query.ApplySearching(input.SearchingColumn, input.SearchingValue);
+        int countFilterd = searchingResult.Count();
+        var sortingResult = searchingResult.ApplySorting(input.OrderByData);
+        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
+        var finalQuery = await pagingResult.GetResult(input.CurrentPage, input.RowsPerPage , countFilterd);
+        return finalQuery;
     }
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetAsync(Guid id) 
+    public async Task<CustomerDTO> GetAsync(Guid id) 
     {
         var getOne = await _repository.GetByIdAsync(id);
         var result = _map.Map<CustomerDTO>(getOne);
-        return Ok(result);
+        return result;
     }
-    
+
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(CustomerCreateDTO customerDTO)
+    public CustomerDTO Create(CustomerCreateDTO customerDTO)
     {
         if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+            throw new Exception("Validation failed. Please check the input and correct any errors.");
         Customer customer = _map.Map<Customer>(customerDTO);
         _repository.Add(customer);
-        return Ok(customer);
+        var res = _map.Map<CustomerDTO>(customer);
+        return res;
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(Guid id, CustomerUpdateDTO customerDTO)
+    public void Update(Guid id, CustomerUpdateDTO customerDTO)
     {
         if (id != customerDTO.CustomerId)
-            return BadRequest();
+            throw new Exception("Object id is not compatible with the pass id");
         Customer customer = _map.Map<Customer>(customerDTO);
         _repository.Update(customer);
-        return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        var customer = await _repository.DeleteAsync(id);
-        if(customer == null) return NotFound();
-        return NoContent();
+        var entity = await _repository.GetByIdAsync(id) ?? throw new Exception("This id is invalid");
+        _repository.Delete(entity);
     }
 }

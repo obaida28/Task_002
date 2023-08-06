@@ -22,46 +22,48 @@ public class DriverController : ControllerBase //RootController<Car,ICarReposito
     } 
        
     [HttpGet(template : "All")]
-    public async Task<IActionResult> GetListAsync(DriverRequestDTO input) 
+    public async Task<PagingModel<Driver>> GetListAsync(DriverRequestDTO input) 
     {
-        var query = _repository.GetAll().Where($"{input.SearchingColumn} = @0", input.SearchingValue);
-        var getDrivers = await query.GetPagedResult(input.CurrentPage, input.RowsPerPage, input.OrderByData, false);
-        var driverList = _map.Map<List<DriverDTO>>(getDrivers);
-        return Ok(driverList);
+        var query = _repository.GetQueryable();
+        var searchingResult = query.ApplySearching(input.SearchingColumn, input.SearchingValue);
+        int countFilterd = searchingResult.Count();
+        var sortingResult = searchingResult.ApplySorting(input.OrderByData);
+        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
+        var finalQuery = await pagingResult.GetResult(input.CurrentPage, input.RowsPerPage , countFilterd);
+        return finalQuery;
     }
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetAsync(Guid id) 
+    public async Task<DriverDTO> GetAsync(Guid id) 
     {
         var getOne = await _repository.GetByIdAsync(id);
         var result = _map.Map<DriverDTO>(getOne);
-        return Ok(result);
+        return result;
     }
-    
+
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(DriverCreateDTO driverDTO)
+    public DriverDTO Create(DriverCreateDTO driverDTO)
     {
         if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+            throw new Exception("Validation failed. Please check the input and correct any errors.");
         Driver driver = _map.Map<Driver>(driverDTO);
         _repository.Add(driver);
-        return Ok(driver);
+        var res = _map.Map<DriverDTO>(driver);
+        return res;
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(Guid id, DriverUpdateDTO driverDTO)
+    public void Update(Guid id, DriverUpdateDTO driverDTO)
     {
         if (id != driverDTO.DriverId)
-            return BadRequest();
+            throw new Exception("Object id is not compatible with the pass id");
         Driver driver = _map.Map<Driver>(driverDTO);
         _repository.Update(driver);
-        return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        var driver = await _repository.DeleteAsync(id);
-        if(driver == null) return NotFound();
-        return NoContent();
+        var entity = await _repository.GetByIdAsync(id) ?? throw new Exception("This id is invalid");
+        _repository.Delete(entity);
     }
 }

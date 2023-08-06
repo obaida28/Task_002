@@ -13,15 +13,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         _context.Set<T>().Add(entity);
     }
 
-    public async Task<T> DeleteAsync(Guid id)
+    public void Delete(T entity)
     {
-        var entity = await GetByIdAsync(id);
-        if(entity == null) return entity;
         _context.Set<T>().Remove(entity);
-        return entity;
     }
 
-    public IQueryable<T> GetAll()
+    public IQueryable<T> GetQueryable()
     {
         return _context.Set<T>().AsQueryable();
     }
