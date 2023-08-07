@@ -16,12 +16,15 @@ public class CarProfile : Profile
             ));
 
         CreateMap < CarUpdateDto, Car > ()
-        .ForMember(
-            dest => dest.Rentals  ,opt => opt.MapFrom(src => 
-                new List<Rental> { 
-                    new Rental { CustomerId = (Guid)src.CustomerId , 
-                    DriverId = src.DriverId , CarId = src.CarId} }
-            ));
+        .ForMember(dest => dest.Id , opt => opt.MapFrom(src => src.CarId));
+        // .ForMember(dest => dest.CarNumber , opt => opt.MapFrom(src => 
+        // )
+        // .ForMember(
+        //     dest => dest.Rentals  ,opt => opt.MapFrom(src => 
+        //         new List<Rental> { 
+        //             new Rental { CustomerId = (Guid)src.CustomerId , 
+        //             DriverId = src.DriverId } }
+        //     ));
 
          CreateMap<Car, CarDTO>()
             .ForMember(dest => dest.DriverName, opt => opt.MapFrom(src => getDrivers(src)))

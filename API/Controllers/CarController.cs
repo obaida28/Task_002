@@ -3,8 +3,11 @@ using API.Helpers;
 using AutoMapper;
 using Core.Entites;
 using Core.Interfaces;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
+using System.Net;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
@@ -24,7 +27,7 @@ public class CarController : ControllerBase
     {
         var query = _repository.GetQueryable();
         var searchingResult = query.ApplySearching(input.SearchingColumn, input.SearchingValue);
-        int countFilterd = searchingResult.Count();
+        int countFilterd = await searchingResult.CountAsync();
         var sortingResult = searchingResult.ApplySorting(input.OrderByData);
         var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
         var finalQuery = await pagingResult.GetResult(input.CurrentPage, input.RowsPerPage , countFilterd);
@@ -63,7 +66,19 @@ public class CarController : ControllerBase
     [HttpDelete("{id}")]
     public async Task DeleteAsync(Guid id)
     {
-        var entity = await _repository.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
+        var entity = await _repository.GetByIdAsync(id);
+        if(entity is null) 
+        {
+
+            throw new Exception("Not found");
+            //throw new NotFound();//("Not Found");
+            //  return new HttpStatusCodeResult(HttpStatusCode.NotAcceptable, "Fill the name!");
+//             var responseMsg = new HttpResponseMessage(HttpStatusCode.Conflict);
+//   responseMsg.Content = new StringContent("Custom error message");
+//   throw new HttpResponseException(responseMsg);
+           // throw new HttpRequestException(HttpStatusCode.NotFound,);
+        }
         _repository.Delete(entity);
+        //return Notfound();
     }
 }

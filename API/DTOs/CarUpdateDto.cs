@@ -4,6 +4,7 @@ namespace API.DTOs;
 public class CarUpdateDto
 {
     public Guid CarId { get; set; }
+    public string CarNumber { get; set; }
 
     [Required(ErrorMessage = "Type is required.")]
     public string Type { get; set; }
@@ -16,6 +17,6 @@ public class CarUpdateDto
 
     [Range(0, int.MaxValue, ErrorMessage = "Daily rate must be a non-negative value.")]
     public int DailyRate { get; set; }
-    public Guid? DriverId { get; set; }
-    public Guid? CustomerId { get; set; }
+    // public Guid? DriverId { get; set; }
+    // public Guid? CustomerId { get; set; }
 }

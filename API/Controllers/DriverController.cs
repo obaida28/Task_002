@@ -6,6 +6,7 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Dynamic.Core;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
@@ -26,7 +27,7 @@ public class DriverController : ControllerBase //RootController<Car,ICarReposito
     {
         var query = _repository.GetQueryable();
         var searchingResult = query.ApplySearching(input.SearchingColumn, input.SearchingValue);
-        int countFilterd = searchingResult.Count();
+        int countFilterd = await searchingResult.CountAsync();
         var sortingResult = searchingResult.ApplySorting(input.OrderByData);
         var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
         var finalQuery = await pagingResult.GetResult(input.CurrentPage, input.RowsPerPage , countFilterd);
