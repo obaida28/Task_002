@@ -10,75 +10,27 @@ using System.Linq.Dynamic.Core;
 using System.Net;
 
 namespace API.Controllers;
-[Route("api/[controller]")]
-[ApiController]
-public class CarController : ControllerBase 
+public class CarController : BaseController<Car,ICarRepository> 
 {
-    private readonly ICarRepository _repository;
-    protected readonly IMapper _map;
-    public CarController(ICarRepository repository , IMapper map) //: base(repository)
-    {
-        _repository = repository;
-        _map = map;
-    } 
+    public CarController(ICarRepository repository , IMapper map) : base(repository , map) {}
     
-    [HttpGet(template : "All")]
-    public async Task<PagingModel<Car>> GetListAsync(CarRequestDTO input) 
-    {
-        var query = _repository.GetQueryable();
-        var searchingResult = query.ApplySearching(input.SearchingColumn, input.SearchingValue);
-        int countFilterd = await searchingResult.CountAsync();
-        var sortingResult = searchingResult.ApplySorting(input.OrderByData);
-        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
-        var finalQuery = await pagingResult.GetResult(input.CurrentPage, input.RowsPerPage , countFilterd);
-        return finalQuery;
-    }
+    [HttpGet(template: "All")]
+    public async Task<PagingModel<Car>> GetListAsync(CarRequestDTO input) => 
+        await GetAllAsync(input);
+
     [HttpGet("{id}")]
-    public async Task<CarDTO> GetAsync(Guid id) 
-    {
-        var getOne = await _repository.GetByIdAsync(id);
-        var result = _map.Map<CarDTO>(getOne);
-        return result;
-    }
+    public async Task<CarDTO> GetAsync(Guid id) => 
+        await base.GetByIdAsync<CarDTO>(id);
     
     [HttpPost]
-    public async Task<CarDTO> CreateAsync(CarCreateDto carDTO)
+    public async Task<CarDTO> CreateAsync(CarCreateDto carCreateDto)
     {
-        if (!ModelState.IsValid)
-            throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
-        Car car = _map.Map<Car>(carDTO);
-        bool isExist = await _repository.IsExistAsync(carDTO.CarNumber);
+        bool isExist = await _repository.IsExistAsync(carCreateDto.CarNumber);
         if(isExist) throw new BadHttpRequestException("The car number is unique !");
-        await _repository.AddAsync(car);
-        var res = _map.Map<CarDTO>(car);
-        return res;
+        return await base.PostAsync<CarCreateDto,CarDTO>(carCreateDto);
     }
 
-    [HttpPut("{id}")]
-    public async Task UpdateAsync(Guid id, CarUpdateDto carDTO)
-    {
-        if (id != carDTO.CarId)
-            throw new BadHttpRequestException("Object id is not compatible with the pass id");
-        Car car = _map.Map<Car>(carDTO);
-        await _repository.UpdateAsync(car);
-    }
-
-    [HttpDelete("{id}")]
-    public async Task DeleteAsync(Guid id)
-    {
-        var entity = await _repository.GetByIdAsync(id);
-        if(entity is null) 
-        {
-
-            throw new Exception("Not found");
-            //throw new NotFound();//("Not Found");
-            //  return new HttpStatusCodeResult(HttpStatusCode.NotAcceptable, "Fill the name!");
-//             var responseMsg = new HttpResponseMessage(HttpStatusCode.Conflict);
-//   responseMsg.Content = new StringContent("Custom error message");
-//   throw new HttpResponseException(responseMsg);
-           // throw new HttpRequestException(HttpStatusCode.NotFound,);
-        }
-        await _repository.DeleteAsync(entity);
-        //return Notfound();
-    }
+        [HttpPut("{id}")]
+    public async Task UpdateAsync(Guid id, CustomerUpdateDTO customerUpdateDTO) => 
+        await base.PutAsync(id , customerUpdateDTO , id == customerUpdateDTO.CustomerId);
 }
