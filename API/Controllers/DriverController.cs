@@ -42,29 +42,29 @@ public class DriverController : ControllerBase //RootController<Car,ICarReposito
     }
 
     [HttpPost]
-    public DriverDTO Create(DriverCreateDTO driverDTO)
+    public async Task<DriverDTO> CreateAsync(DriverCreateDTO driverDTO)
     {
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
         Driver driver = _map.Map<Driver>(driverDTO);
-        _repository.Add(driver);
+        await _repository.AddAsync(driver);
         var res = _map.Map<DriverDTO>(driver);
         return res;
     }
 
     [HttpPut("{id}")]
-    public void Update(Guid id, DriverUpdateDTO driverDTO)
+    public async Task UpdateAsync(Guid id, DriverUpdateDTO driverDTO)
     {
         if (id != driverDTO.DriverId)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Driver driver = _map.Map<Driver>(driverDTO);
-        _repository.Update(driver);
+        await _repository.UpdateAsync(driver);
     }
 
     [HttpDelete("{id}")]
     public async Task DeleteAsync(Guid id)
     {
         var entity = await _repository.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
-        _repository.Delete(entity);
+        await _repository.DeleteAsync(entity);
     }
 }

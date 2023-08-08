@@ -8,16 +8,16 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {
     protected readonly ApplicationDbContext _context ;
     public GenericRepository(ApplicationDbContext context) => _context = context;
-    public void Add(T entity)
+    public async Task AddAsync(T entity)
     {
-        _context.Set<T>().Add(entity);
-        _context.SaveChanges();
+        await _context.Set<T>().AddAsync(entity);
+        await _context.SaveChangesAsync();
     }
 
-    public void Delete(T entity)
+    public async Task DeleteAsync(T entity)
     {
         _context.Set<T>().Remove(entity);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
     public IQueryable<T> GetQueryable()
@@ -30,9 +30,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         return await _context.Set<T>().FindAsync(id);
     }
 
-    public void Update(T entity)
+    public async Task UpdateAsync(T entity)
     {
         _context.Set<T>().Update(entity);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

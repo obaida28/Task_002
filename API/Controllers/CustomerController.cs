@@ -42,29 +42,29 @@ public class CustomerController : ControllerBase //RootController<Car,ICarReposi
     }
 
     [HttpPost]
-    public CustomerDTO Create(CustomerCreateDTO customerDTO)
+    public async Task<CustomerDTO> CreateAsync(CustomerCreateDTO customerDTO)
     {
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
         Customer customer = _map.Map<Customer>(customerDTO);
-        _repository.Add(customer);
+        await _repository.AddAsync(customer);
         var res = _map.Map<CustomerDTO>(customer);
         return res;
     }
 
     [HttpPut("{id}")]
-    public void Update(Guid id, CustomerUpdateDTO customerDTO)
+    public async Task UpdateAsync(Guid id, CustomerUpdateDTO customerDTO)
     {
         if (id != customerDTO.CustomerId)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Customer customer = _map.Map<Customer>(customerDTO);
-        _repository.Update(customer);
+        await _repository.UpdateAsync(customer);
     }
 
     [HttpDelete("{id}")]
     public async Task DeleteAsync(Guid id)
     {
         var entity = await _repository.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
-        _repository.Delete(entity);
+        await _repository.DeleteAsync(entity);
     }
 }

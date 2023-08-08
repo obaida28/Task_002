@@ -49,18 +49,18 @@ public class CarController : ControllerBase
         Car car = _map.Map<Car>(carDTO);
         bool isExist = await _repository.IsExistAsync(carDTO.CarNumber);
         if(isExist) throw new BadHttpRequestException("The car number is unique !");
-        _repository.Add(car);
+        await _repository.AddAsync(car);
         var res = _map.Map<CarDTO>(car);
         return res;
     }
 
     [HttpPut("{id}")]
-    public void Update(Guid id, CarUpdateDto carDTO)
+    public async Task UpdateAsync(Guid id, CarUpdateDto carDTO)
     {
         if (id != carDTO.CarId)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Car car = _map.Map<Car>(carDTO);
-        _repository.Update(car);
+        await _repository.UpdateAsync(car);
     }
 
     [HttpDelete("{id}")]
@@ -78,7 +78,7 @@ public class CarController : ControllerBase
 //   throw new HttpResponseException(responseMsg);
            // throw new HttpRequestException(HttpStatusCode.NotFound,);
         }
-        _repository.Delete(entity);
+        await _repository.DeleteAsync(entity);
         //return Notfound();
     }
 }
