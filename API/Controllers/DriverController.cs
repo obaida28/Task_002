@@ -23,24 +23,14 @@ public class DriverController : ControllerBase
     public async Task<PagingModel<Driver>> GetListAsync(DriverRequestDTO input) 
     {
         var query = _repository.GetQueryable();
-        var searchingResult = ApplySearching(query , input.SearchingColumn, input.SearchingValue);
+        var searchingResult = input.ApplySearching(query);
         int countFilterd = searchingResult.Count();
-        var sortingResult = searchingResult.ApplySorting(input.OrderByData);
+        var sortingResult = input.ApplySorting(searchingResult);
         var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
-        var finalQuery = await pagingResult.GetResult(input.CurrentPage, input.RowsPerPage , countFilterd);
+        var finalQuery = await pagingResult.GetResultAsync(input.CurrentPage, input.RowsPerPage , countFilterd);
         return finalQuery;
     }
-    [ApiExplorerSettings(IgnoreApi = true)]
-    private IQueryable<Driver> ApplySearching(IQueryable<Driver> query , string colName , string value)
-    {
-        switch(colName)
-        {
-            case "Id" : 
-                return query.Where(d => d.Id == new Guid(value));
-            default :
-                return query.Where(d => d.DriverName.Contains(value.ToString()));
-        }
-    }
+    // [ApiExplorerSettings(IgnoreApi = true)]
     [HttpGet("{id}")]
     public async Task<DriverDTO> GetAsync(Guid id) 
     {

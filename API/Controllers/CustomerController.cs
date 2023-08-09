@@ -23,24 +23,14 @@ public class CustomerController : ControllerBase
     public async Task<PagingModel<Customer>> GetListAsync(CustomerRequestDTO input)
     {
         var query = _repository.GetQueryable();
-        var searchingResult = ApplySearching(query,input.SearchingColumn, input.SearchingValue);
+        var searchingResult = input.ApplySearching(query);
         int countFilterd = searchingResult.Count();
-        var sortingResult = searchingResult.ApplySorting(input.OrderByData);
+        var sortingResult = input.ApplySorting(searchingResult);
         var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
-        var finalQuery = await pagingResult.GetResult(input.CurrentPage, input.RowsPerPage , countFilterd);
+        var finalQuery = await pagingResult.GetResultAsync(input.CurrentPage, input.RowsPerPage , countFilterd);
         return finalQuery;
     }
-    [ApiExplorerSettings(IgnoreApi = true)]
-    private IQueryable<Customer> ApplySearching(IQueryable<Customer> query , string colName , string value)
-    {
-        switch(colName)
-        {
-            case "Id" : 
-                return query.Where(c => c.Id == new Guid(value));
-            default :
-                return query.Where(c => c.CustomerName.Contains(value.ToString()));
-        }
-    }
+    
     [HttpGet("{id}")]
     public async Task<CustomerDTO> GetAsync(Guid id) 
     {

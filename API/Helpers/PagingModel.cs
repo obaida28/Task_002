@@ -13,6 +13,8 @@ public class PagingModel<T> where T: class
 
   public string OrderByData { get; set; }
 
+  public bool ASC { get; set; }
+
   public IEnumerable<T> Results { get; set; } = Array.Empty<T>();
 
 }
