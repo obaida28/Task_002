@@ -24,14 +24,32 @@ public class CarController : ControllerBase
     public async Task<PagingModel<Car>> GetListAsync(CarRequestDTO input) 
     {
         var query = _repository.GetQueryable();
-        var searchingResult = query.ApplySearching(input.SearchingColumn, input.SearchingValue);
+        var searchingResult = ApplySearching(query , input.SearchingColumn, input.SearchingValue);
         int countFilterd = searchingResult.Count();
         var sortingResult = searchingResult.ApplySorting(input.OrderByData);
         var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
         var finalQuery = await pagingResult.GetResult(input.CurrentPage, input.RowsPerPage , countFilterd);
         return finalQuery;
     }
-
+    [ApiExplorerSettings(IgnoreApi = true)]
+    private IQueryable<Car> ApplySearching(IQueryable<Car> query , string colName , string value)
+    {
+        switch(colName)
+        {
+            case "Id" : 
+                return query.Where(c => c.Id == new Guid(value));
+            case "Type" : 
+                return query.Where(c => c.Type.Contains(value.ToString()));
+            case "Color" : 
+                return query.Where(c => c.Color.Contains(value.ToString()));
+            case "EngineCapacity" : 
+                return query.Where(c => c.EngineCapacity == Convert.ToDecimal(value));
+            case "DailyRate" : 
+                return query.Where(c => c.DailyRate == Convert.ToInt32(value));
+            default :
+                return query.Where(c => c.CarNumber.Contains(value.ToString()));
+        }
+    }
     [HttpGet("{id}")]
     public async Task<CarDTO> GetAsync(Guid id) 
     {

@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Helpers;
 public static class QueryableExtensions
 {
-  public static IQueryable<TInput> ApplySearching<TInput>(
-    this IQueryable<TInput> query, string SearchingColumn , string SearchingValue) 
-    where TInput : class
-  {
-    var finalQuery = query.Where($"{SearchingColumn} = @0", SearchingValue);
-    return finalQuery;
- }
+//   public static IQueryable<TInput> ApplySearching<TInput>(
+//     this IQueryable<TInput> query, string SearchingColumn , string SearchingValue) 
+//     where TInput : class
+//   {
+//     var finalQuery = query.Where($"{SearchingColumn} = @0", SearchingValue);
+//     return finalQuery;
+//  }
   public static IQueryable<TInput> ApplySorting<TInput>(
      this IQueryable<TInput> query, string orderBy, string sortOrder = "asc")
      where TInput : class
