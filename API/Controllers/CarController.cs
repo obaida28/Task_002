@@ -14,7 +14,7 @@ public class CarController : ControllerBase
 {
     private readonly ICarRepository _repository; 
     private readonly IMapper _map;
-    public CarController(ICarRepository repository , IMapper map) : base(repository , map) 
+    public CarController(ICarRepository repository , IMapper map)
     {
         _repository = repository;
         _map = map;
@@ -45,7 +45,7 @@ public class CarController : ControllerBase
     {
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
-        bool isExist = await _repository.IsExistAsync(carCreateDto.CarNumber);
+        bool isExist = await _repository.IsExistAsync(carCreateDto.Number);
         if(isExist) throw new BadHttpRequestException("The car number is unique !");
         var entity = _map.Map<Car>(carCreateDto);
         await _repository.AddAsync(entity);
@@ -56,9 +56,9 @@ public class CarController : ControllerBase
     [HttpPut("{id}")]
     public async Task UpdateAsync(Guid id, CarUpdateDto carUpdateDTO)
     {
-        if (id != carDTO.CarId)
+        if (id != carUpdateDTO.Id)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
-        Car car = _map.Map<Car>(carDTO);
+        Car car = _map.Map<Car>(carUpdateDTO);
         await _repository.UpdateAsync(car);
     }
 

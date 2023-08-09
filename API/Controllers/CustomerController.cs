@@ -13,7 +13,7 @@ public class CustomerController : ControllerBase
 {
     private readonly ICustomerRepository _repository; 
     private readonly IMapper _map;
-    public CustomerController(ICustomerRepository repository , IMapper map) : base(repository , map) 
+    public CustomerController(ICustomerRepository repository , IMapper map)
     {
         _repository = repository;
         _map = map;
@@ -44,7 +44,7 @@ public class CustomerController : ControllerBase
     {
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
-        Customer customer = _map.Map<Customer>(customerDTO);
+        Customer customer = _map.Map<Customer>(customerCreateDTO);
         await _repository.AddAsync(customer);
         var res = _map.Map<CustomerDTO>(customer);
         return res;
@@ -52,9 +52,9 @@ public class CustomerController : ControllerBase
     [HttpPut("{id}")]
     public async Task UpdateAsync(Guid id, CustomerUpdateDTO customerUpdateDTO)
     {
-        if (id != customerDTO.CustomerId)
+        if (id != customerUpdateDTO.Id)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
-        Customer customer = _map.Map<Customer>(customerDTO);
+        Customer customer = _map.Map<Customer>(customerUpdateDTO);
         await _repository.UpdateAsync(customer);
     }
     [HttpDelete("{id}")]
