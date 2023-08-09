@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace API.Controllers;
+[Route("api/[controller]")]
+[ApiController]
 public class CarController : ControllerBase 
 {
     private readonly ICarRepository _repository; 

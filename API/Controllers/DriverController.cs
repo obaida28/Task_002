@@ -9,6 +9,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
+[Route("api/[controller]")]
+[ApiController]
 public class DriverController : ControllerBase 
 {
     private readonly IDriverRepository _repository; 

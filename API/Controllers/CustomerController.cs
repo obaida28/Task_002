@@ -9,6 +9,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
+[Route("api/[controller]")]
+[ApiController]
 public class CustomerController : ControllerBase 
 {
     private readonly ICustomerRepository _repository; 
