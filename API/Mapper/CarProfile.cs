@@ -26,7 +26,9 @@ public class CarProfile : Profile
         //             DriverId = src.DriverId } }
         //     ));
 
-         CreateMap<Car, CarDTO>();
+         CreateMap<Car, CarDTO>()
+        .ForMember(
+            dest => dest.Number  ,opt => opt.MapFrom(src => src.CarNumber));
             // .ForMember(dest => dest.DriverName, opt => opt.MapFrom(src => getDrivers(src)))
             // .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => getCustomers(src)));
     }

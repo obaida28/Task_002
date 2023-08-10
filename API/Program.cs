@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Core.Interfaces;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Mvc;
 // using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,8 @@ builder.Services.AddScoped<IDriverRepository, DriverRepository>();
 // builder.Services.AddScoped(typeof(IGenericCache<>), typeof(GenericCache<>));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddAutoMapper(typeof(Program));
+// builder.Services.Configure<ApiBehaviorOptions>(options => {    
+// options.SuppressModelStateInvalidFilter = true;  });
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("LocalConnection")));
 builder.Services.AddControllers().AddJsonOptions(x =>

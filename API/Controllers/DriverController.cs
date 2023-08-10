@@ -51,6 +51,8 @@ public class DriverController : ControllerBase
     [HttpGet("{id}")]
     public async Task<DriverDTO> GetAsync(Guid id) 
     {
+        if (id == Guid.Empty)
+            throw new BadHttpRequestException("Id is Required");
         var getOne = await _repository.GetByIdAsync(id);
         var result = _map.Map<DriverDTO>(getOne);
         return result;
@@ -70,6 +72,8 @@ public class DriverController : ControllerBase
     [HttpPut("{id}")]
     public async Task UpdateAsync(Guid id, DriverUpdateDTO driverUpdateDTO)
     {
+        if (id == Guid.Empty)
+            throw new BadHttpRequestException("Id is Required");
         if (id != driverUpdateDTO.Id)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Driver driver = _map.Map<Driver>(driverUpdateDTO);
@@ -79,6 +83,8 @@ public class DriverController : ControllerBase
     [HttpDelete("{id}")]
     public async Task DeleteAsync(Guid id)
     {
+        if (id == Guid.Empty)
+            throw new BadHttpRequestException("Id is Required");
         var entity = await _repository.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
         await _repository.DeleteAsync(entity);
     }

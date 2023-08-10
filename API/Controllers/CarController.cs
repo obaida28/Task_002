@@ -52,6 +52,8 @@ public class CarController : ControllerBase
     [HttpGet("{id}")]
     public async Task<CarDTO> GetAsync(Guid id) 
     {
+        if (id == Guid.Empty)
+            throw new BadHttpRequestException("Id is Required");
         var getOne = await _repository.GetByIdAsync(id);
         var result = _map.Map<CarDTO>(getOne);
         return result;
@@ -73,6 +75,8 @@ public class CarController : ControllerBase
     [HttpPut("{id}")]
     public async Task UpdateAsync(Guid id, CarUpdateDto carUpdateDTO)
     {
+        if (id == Guid.Empty)
+            throw new BadHttpRequestException("Id is Required");
         if (id != carUpdateDTO.Id)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Car car = _map.Map<Car>(carUpdateDTO);
@@ -82,6 +86,8 @@ public class CarController : ControllerBase
     [HttpDelete("{id}")]
     public async Task DeleteAsync(Guid id)
     {
+        if (id == Guid.Empty)
+            throw new BadHttpRequestException("Id is Required");
         var entity = await _repository.GetByIdAsync(id) ?? 
             throw new BadHttpRequestException("This id is invalid");
         await _repository.DeleteAsync(entity);
