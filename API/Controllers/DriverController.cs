@@ -24,12 +24,17 @@ public class DriverController : ControllerBase
     [HttpGet(template: "GetListAsync")]
     public async Task<PagingResult<DriverDTO>> GetListAsync(DriverRequestDTO input)
     {
+        if(input == null)
+            throw new BadHttpRequestException("Requied input");
         var query = _repository.GetQueryable();
-        var searchingResult = input.ApplySearching(query);
-        int countFilterd = searchingResult.Count();
-        var sortingResult = input.ApplySorting(searchingResult);
-        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage);
-        var entityResult = await pagingResult.GetResultAsync(input.CurrentPage, input.RowsPerPage , countFilterd);
+        bool withSearching = input.SearchingColumn != null && input.SearchingValue != null;
+        if(withSearching) query = input.ApplySearching(query);
+        int countFilterd = query.Count();
+        bool withSorting = input.OrderByData != null;
+        if(withSorting) query = input.ApplySorting(query);
+        bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
+        query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
+        var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var driverResult = entityResult.Results.Select(c =>
             new DriverDTO { Name = c.DriverName });
         var dtoResult = new PagingResult<DriverDTO>

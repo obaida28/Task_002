@@ -25,12 +25,17 @@ public class CarController : ControllerBase
     [HttpGet(template: "GetListAsync")]
     public async Task<PagingResult<CarDTO>> GetListAsync(CarRequestDTO input) 
     {
+        if(input == null)
+            throw new BadHttpRequestException("Requied input");
         var query = _repository.GetQueryable();
-        var searchingResult = input.ApplySearching(query);
-        int countFilterd = searchingResult.Count();
-        var sortingResult = input.ApplySorting(searchingResult);
-        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage);
-        var entityResult = await pagingResult.GetResultAsync(input.CurrentPage, input.RowsPerPage , countFilterd);
+        bool withSearching = input.SearchingColumn != null && input.SearchingValue != null;
+        if(withSearching) query = input.ApplySearching(query);
+        int countFilterd = query.Count();
+        bool withSorting = input.OrderByData != null;
+        if(withSorting) query = input.ApplySorting(query);
+        bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
+        query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
+        var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var carResult = entityResult.Results.Select(c =>
             new CarDTO { Number = c.CarNumber, Type = c.Type, Color = c.Color ,
                 DailyRate = c.DailyRate, EngineCapacity = c.EngineCapacity });
@@ -42,7 +47,7 @@ public class CarController : ControllerBase
             TotalRows = entityResult.TotalRows ,
             Results = carResult
         };
-        return dtoResult;        
+        return dtoResult;
     }
     [HttpGet("{id}")]
     public async Task<CarDTO> GetAsync(Guid id) 

@@ -20,24 +20,24 @@ public static class QueryableExtensions
   //       return finalQuery;
   //   }
     public static IQueryable<TInput> ApplyPaging<TInput>(
-    this IQueryable<TInput> query, int currentPage, int rowsPerPage, bool getAllRecords = false) 
+    this IQueryable<TInput> query, int currentPage, int rowsPerPage, bool WithPaging) 
     where TInput : class
     {
-      var itemsToSkip = (currentPage - 1) * rowsPerPage;
-      var result = getAllRecords ? query : query.Skip(itemsToSkip).Take(rowsPerPage);
+      var itemsToSkip = (currentPage - 1) * rowsPerPage ;
+      var result = WithPaging ? query.Skip(itemsToSkip).Take(rowsPerPage) : query ;
       return result;
     }
     
     public static async Task<PagingResult<TInput>> GetResultAsync<TInput>(
-    this IQueryable<TInput> query, int currentPage, int rowsPerPage, int totalCount) 
+    this IQueryable<TInput> query, bool WithPaging , int currentPage, int rowsPerPage, int totalCount) 
     where TInput : class
     {
         var result = await query.ToListAsync();
         return new PagingResult<TInput>
         {
-          RowsPerPage = rowsPerPage,
-          CurrentPage = currentPage,
-          TotalPages = totalCount / rowsPerPage,
+          RowsPerPage = WithPaging ? rowsPerPage : totalCount,
+          CurrentPage = WithPaging ? currentPage : 1,
+          TotalPages = WithPaging ? (totalCount / rowsPerPage) : 1,
           TotalRows = totalCount,
           Results = result
         };
