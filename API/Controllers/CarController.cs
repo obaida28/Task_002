@@ -23,15 +23,26 @@ public class CarController : ControllerBase
     }
     
     [HttpGet(template: "GetListAsync")]
-    public async Task<PagingModel<Car>> GetListAsync(CarRequestDTO input) 
+    public async Task<PagingResult<CarDTO>> GetListAsync(CarRequestDTO input) 
     {
         var query = _repository.GetQueryable();
         var searchingResult = input.ApplySearching(query);
         int countFilterd = searchingResult.Count();
         var sortingResult = input.ApplySorting(searchingResult);
-        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
-        var finalQuery = await pagingResult.GetResultAsync(input.CurrentPage, input.RowsPerPage , countFilterd);
-        return finalQuery;
+        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage);
+        var entityResult = await pagingResult.GetResultAsync(input.CurrentPage, input.RowsPerPage , countFilterd);
+        var carResult = entityResult.Results.Select(c =>
+            new CarDTO { Number = c.CarNumber, Type = c.Type, Color = c.Color ,
+                DailyRate = c.DailyRate, EngineCapacity = c.EngineCapacity });
+        var dtoResult = new PagingResult<CarDTO>
+        {
+            CurrentPage = entityResult.CurrentPage ,
+            RowsPerPage = entityResult.RowsPerPage,
+            TotalPages = entityResult.TotalPages,
+            TotalRows = entityResult.TotalRows ,
+            Results = carResult
+        };
+        return dtoResult;        
     }
     [HttpGet("{id}")]
     public async Task<CarDTO> GetAsync(Guid id) 

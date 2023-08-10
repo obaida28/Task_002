@@ -1,7 +1,7 @@
 using API.DTOs;
 
 namespace API.Helpers;
-public class PagingModel<T> where T: class
+public class PagingResult<T> where T: class
 {
   public int CurrentPage { get; set; } 
 
@@ -11,10 +11,5 @@ public class PagingModel<T> where T: class
 
   public int TotalRows { get; set; }
 
-  public string OrderByData { get; set; }
-
-  public bool ASC { get; set; }
-
   public IEnumerable<T> Results { get; set; } = Array.Empty<T>();
-
 }

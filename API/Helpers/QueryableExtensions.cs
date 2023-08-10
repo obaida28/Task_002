@@ -28,12 +28,12 @@ public static class QueryableExtensions
       return result;
     }
     
-    public static async Task<PagingModel<TInput>> GetResultAsync<TInput>(
+    public static async Task<PagingResult<TInput>> GetResultAsync<TInput>(
     this IQueryable<TInput> query, int currentPage, int rowsPerPage, int totalCount) 
     where TInput : class
     {
         var result = await query.ToListAsync();
-        return new PagingModel<TInput>
+        return new PagingResult<TInput>
         {
           RowsPerPage = rowsPerPage,
           CurrentPage = currentPage,

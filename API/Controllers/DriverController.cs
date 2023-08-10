@@ -22,15 +22,25 @@ public class DriverController : ControllerBase
     }
 
     [HttpGet(template: "GetListAsync")]
-    public async Task<PagingModel<Driver>> GetListAsync(DriverRequestDTO input) 
+    public async Task<PagingResult<DriverDTO>> GetListAsync(DriverRequestDTO input)
     {
         var query = _repository.GetQueryable();
         var searchingResult = input.ApplySearching(query);
         int countFilterd = searchingResult.Count();
         var sortingResult = input.ApplySorting(searchingResult);
-        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage , false);
-        var finalQuery = await pagingResult.GetResultAsync(input.CurrentPage, input.RowsPerPage , countFilterd);
-        return finalQuery;
+        var pagingResult = sortingResult.ApplyPaging(input.CurrentPage, input.RowsPerPage);
+        var entityResult = await pagingResult.GetResultAsync(input.CurrentPage, input.RowsPerPage , countFilterd);
+        var driverResult = entityResult.Results.Select(c =>
+            new DriverDTO { Name = c.DriverName });
+        var dtoResult = new PagingResult<DriverDTO>
+        {
+            CurrentPage = entityResult.CurrentPage ,
+            RowsPerPage = entityResult.RowsPerPage,
+            TotalPages = entityResult.TotalPages,
+            TotalRows = entityResult.TotalRows ,
+            Results = driverResult
+        };
+        return dtoResult;
     }
     // [ApiExplorerSettings(IgnoreApi = true)]
     [HttpGet("{id}")]
