@@ -7,9 +7,11 @@ public class CustomerProfile : Profile
 {
     public CustomerProfile()
     {
-        CreateMap < CustomerCreateDTO, Customer > ();
-        CreateMap < CustomerUpdateDTO, Customer > ();
-        //  .ForMember(dest => dest.Id , opt => opt.MapFrom(src => src.CustomerId));
-        CreateMap<Customer, CustomerDTO>();
+        CreateMap < CustomerCreateDTO, Customer > ()
+        .ForMember(dest => dest.CustomerName , opt => opt.MapFrom(src => src.Name));
+        CreateMap < CustomerUpdateDTO, Customer > ()
+         .ForMember(dest => dest.CustomerName , opt => opt.MapFrom(src => src.Name));
+        CreateMap<Customer, CustomerDTO>()
+        .ForMember(dest => dest.Name , opt => opt.MapFrom(src => src.CustomerName));
     }
 }

@@ -7,9 +7,11 @@ public class DriverProfile : Profile
 {
     public DriverProfile()
     {
-        CreateMap < DriverCreateDTO, Driver > ();
-        CreateMap < DriverUpdateDTO, Driver > ();
-        //  .ForMember(dest => dest.Id , opt => opt.MapFrom(src => src.DriverId));
-        CreateMap < Driver, DriverDTO>();
+        CreateMap < DriverCreateDTO, Driver > ()
+        .ForMember(dest => dest.DriverName , opt => opt.MapFrom(src => src.Name));
+        CreateMap < DriverUpdateDTO, Driver > ()
+         .ForMember(dest => dest.DriverName , opt => opt.MapFrom(src => src.Name));
+        CreateMap < Driver, DriverDTO>()
+        .ForMember(dest => dest.Name , opt => opt.MapFrom(src => src.DriverName));
     }
 }
