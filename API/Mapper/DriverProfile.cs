@@ -1,4 +1,5 @@
 using API.DTOs;
+using API.Helpers;
 using AutoMapper;
 using Core.Entites;
 
@@ -9,9 +10,13 @@ public class DriverProfile : Profile
     {
         CreateMap < DriverCreateDTO, Driver > ()
         .ForMember(dest => dest.DriverName , opt => opt.MapFrom(src => src.Name));
+
         CreateMap < DriverUpdateDTO, Driver > ()
          .ForMember(dest => dest.DriverName , opt => opt.MapFrom(src => src.Name));
+
         CreateMap < Driver, DriverDTO>()
         .ForMember(dest => dest.Name , opt => opt.MapFrom(src => src.DriverName));
+        
+        CreateMap<PagingResult<Driver> , PagingResult<DriverDTO>>();
     }
 }

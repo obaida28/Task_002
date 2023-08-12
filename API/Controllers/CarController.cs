@@ -27,26 +27,38 @@ public class CarController : ControllerBase
     {
         if(input == null)
             throw new BadHttpRequestException("Requied input");
+        
         var query = _repository.GetQueryable();
-        bool withSearching = input.SearchingColumn != null && input.SearchingValue != null;
-        if(withSearching) query = input.ApplySearching(query);
-        int countFilterd = query.Count();
+
+        bool withSearching = input.SearchingValue != null;
+        if(withSearching) 
+        {
+            bool withDecimal = decimal.TryParse(input.SearchingValue, out decimal decimalValue);
+            bool withInt = int.TryParse(input.SearchingValue, out int intValue);
+             query = query.Where(c => 
+                c.Type.ToLower().Contains(input.SearchingValue) || 
+                c.Color.ToLower().Contains(input.SearchingValue) || 
+                c.CarNumber.ToLower().Contains(input.SearchingValue) ||
+                (withDecimal && c.EngineCapacity == decimalValue) || (withInt && c.DailyRate == intValue));
+        }
+           
+        int countFilterd = await query.CountAsync();
+
         bool withSorting = input.OrderByData != null;
-        if(withSorting) query = input.ApplySorting(query);
+        if(withSorting) query = input.OrderByData switch
+         {
+            "Type" => input.ASC ? query.OrderBy(c => c.Type) : query.OrderByDescending(c => c.Type),
+            "Color" => input.ASC ? query.OrderBy(c => c.Color) : query.OrderByDescending(c => c.Color),
+            "EngineCapacity" => input.ASC ? query.OrderBy(c => c.EngineCapacity) : query.OrderByDescending(c => c.EngineCapacity),
+            "DailyRate" => input.ASC ? query.OrderBy(c => c.DailyRate) : query.OrderByDescending(c => c.DailyRate),
+            _ => input.ASC ? query.OrderBy(c => c.CarNumber) : query.OrderByDescending(c => c.CarNumber),
+        };
+
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
         query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
+
         var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
-        var carResult = entityResult.Results.Select(c =>
-            new CarDTO { Number = c.CarNumber, Type = c.Type, Color = c.Color ,
-                DailyRate = c.DailyRate, EngineCapacity = c.EngineCapacity });
-        var dtoResult = new PagingResult<CarDTO>
-        {
-            CurrentPage = entityResult.CurrentPage ,
-            RowsPerPage = entityResult.RowsPerPage,
-            TotalPages = entityResult.TotalPages,
-            TotalRows = entityResult.TotalRows ,
-            Results = carResult
-        };
+        var dtoResult = _map.Map<PagingResult<CarDTO>>(entityResult);
         return dtoResult;
     }
     [HttpGet("{id}")]

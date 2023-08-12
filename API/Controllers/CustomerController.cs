@@ -26,25 +26,24 @@ public class CustomerController : ControllerBase
     {
         if(input == null)
             throw new BadHttpRequestException("Requied input");
+        
         var query = _repository.GetQueryable();
-        bool withSearching = input.SearchingColumn != null && input.SearchingValue != null;
-        if(withSearching) query = input.ApplySearching(query);
-        int countFilterd = query.Count();
+
+        bool withSearching = input.SearchingValue != null;
+        if(withSearching) query = query.Where(c => 
+            c.CustomerName.ToLower().Contains(input.SearchingValue));
+        
+        int countFilterd = await query.CountAsync();
+
         bool withSorting = input.OrderByData != null;
-        if(withSorting) query = input.ApplySorting(query);
+        if(withSorting) query = input.ASC ? 
+            query.OrderBy(c => c.CustomerName) : query.OrderByDescending(c => c.CustomerName);
+        
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
         query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
+
         var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
-        var customerResult = entityResult.Results.Select(c =>
-            new CustomerDTO { Name = c.CustomerName });
-        var dtoResult = new PagingResult<CustomerDTO>
-        {
-            CurrentPage = entityResult.CurrentPage ,
-            RowsPerPage = entityResult.RowsPerPage,
-            TotalPages = entityResult.TotalPages,
-            TotalRows = entityResult.TotalRows ,
-            Results = customerResult
-        };
+        var dtoResult = _map.Map<PagingResult<CustomerDTO>>(entityResult);
         return dtoResult;
     }
     

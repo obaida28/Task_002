@@ -17,6 +17,5 @@ public class CarCreateDto
     public string Color { get; set; }
 
     [Range(1, int.MaxValue, ErrorMessage = "Daily rate must be a non-negative value.")]
-    // [Required(ErrorMessage = "DailyRate is required.")]
     public int DailyRate { get; set; }
 }

@@ -26,25 +26,25 @@ public class DriverController : ControllerBase
     {
         if(input == null)
             throw new BadHttpRequestException("Requied input");
+
         var query = _repository.GetQueryable();
-        bool withSearching = input.SearchingColumn != null && input.SearchingValue != null;
-        if(withSearching) query = input.ApplySearching(query);
-        int countFilterd = query.Count();
+
+        bool withSearching = input.SearchingValue != null;
+        if(withSearching) query = query.Where(c => 
+            c.DriverName.ToLower().Contains(input.SearchingValue));
+
+        int countFilterd = await query.CountAsync();
+
         bool withSorting = input.OrderByData != null;
-        if(withSorting) query = input.ApplySorting(query);
+        if(withSorting) query = input.ASC ? query.OrderBy(c => c.DriverName) :
+             query.OrderByDescending(c => c.DriverName);
+        
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
         query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
-        var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
-        var driverResult = entityResult.Results.Select(c =>
-            new DriverDTO { Name = c.DriverName });
-        var dtoResult = new PagingResult<DriverDTO>
-        {
-            CurrentPage = entityResult.CurrentPage ,
-            RowsPerPage = entityResult.RowsPerPage,
-            TotalPages = entityResult.TotalPages,
-            TotalRows = entityResult.TotalRows ,
-            Results = driverResult
-        };
+
+        var entityResult = await query.GetResultAsync
+            (withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
+        var dtoResult = _map.Map<PagingResult<DriverDTO>>(entityResult);
         return dtoResult;
     }
     // [ApiExplorerSettings(IgnoreApi = true)]
@@ -59,24 +59,24 @@ public class DriverController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<DriverDTO> CreateAsync(DriverCreateDTO driverCreateDTO)
+    public async Task<DriverDTO> CreateAsync(DriverCreateDTO input)
     {
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
-        Driver driver = _map.Map<Driver>(driverCreateDTO);
+        Driver driver = _map.Map<Driver>(input);
         await _repository.AddAsync(driver);
         var res = _map.Map<DriverDTO>(driver);
         return res;
     }
 
     [HttpPut("{id}")]
-    public async Task UpdateAsync(Guid id, DriverUpdateDTO driverUpdateDTO)
+    public async Task UpdateAsync(Guid id, DriverUpdateDTO input)
     {
         if (id == Guid.Empty)
             throw new BadHttpRequestException("Id is Required");
-        if (id != driverUpdateDTO.Id)
+        if (id != input.Id)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
-        Driver driver = _map.Map<Driver>(driverUpdateDTO);
+        Driver driver = _map.Map<Driver>(input);
         await _repository.UpdateAsync(driver);
     }
 
