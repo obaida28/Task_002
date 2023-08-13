@@ -13,11 +13,11 @@ namespace API.Controllers;
 [ApiController]
 public class DriverController : ControllerBase 
 {
-    private readonly IDriverRepository _repository; 
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _map;
-    public DriverController(IDriverRepository repository , IMapper map)
+    public DriverController(IUnitOfWork unitOfWork , IMapper map)
     {
-        _repository = repository;
+        _unitOfWork = unitOfWork;
         _map = map;
     }
 
@@ -27,7 +27,7 @@ public class DriverController : ControllerBase
         if(input == null)
             throw new BadHttpRequestException("Requied input");
 
-        var query = _repository.GetQueryable();
+        var query = _unitOfWork.Drivers.GetQueryable();
 
         bool withSearching = input.SearchingValue != null;
         if(withSearching) query = query.Where(c => 
@@ -53,7 +53,7 @@ public class DriverController : ControllerBase
     {
         if (id == Guid.Empty)
             throw new BadHttpRequestException("Id is Required");
-        var getOne = await _repository.GetByIdAsync(id);
+        var getOne = await _unitOfWork.Drivers.GetByIdAsync(id);
         var result = _map.Map<DriverDTO>(getOne);
         return result;
     }
@@ -64,7 +64,9 @@ public class DriverController : ControllerBase
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
         Driver driver = _map.Map<Driver>(input);
-        await _repository.AddAsync(driver);
+        await _unitOfWork.Drivers.AddAsync(driver);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
         var res = _map.Map<DriverDTO>(driver);
         return res;
     }
@@ -77,7 +79,9 @@ public class DriverController : ControllerBase
         if (id != input.Id)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Driver driver = _map.Map<Driver>(input);
-        await _repository.UpdateAsync(driver);
+        await _unitOfWork.Drivers.UpdateAsync(driver);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
     }
 
     [HttpDelete("{id}")]
@@ -85,7 +89,9 @@ public class DriverController : ControllerBase
     {
         if (id == Guid.Empty)
             throw new BadHttpRequestException("Id is Required");
-        var entity = await _repository.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
-        await _repository.DeleteAsync(entity);
+        var entity = await _unitOfWork.Drivers.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
+        await _unitOfWork.Drivers.DeleteAsync(entity);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
     }
 }

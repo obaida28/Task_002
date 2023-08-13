@@ -13,11 +13,11 @@ namespace API.Controllers;
 [ApiController]
 public class CustomerController : ControllerBase 
 {
-    private readonly ICustomerRepository _repository; 
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _map;
-    public CustomerController(ICustomerRepository repository , IMapper map)
+    public CustomerController(IUnitOfWork unitOfWork , IMapper map)
     {
-        _repository = repository;
+        _unitOfWork = unitOfWork;
         _map = map;
     }
 
@@ -27,7 +27,7 @@ public class CustomerController : ControllerBase
         if(input == null)
             throw new BadHttpRequestException("Requied input");
         
-        var query = _repository.GetQueryable();
+        var query = _unitOfWork.Customers.GetQueryable();
 
         bool withSearching = input.SearchingValue != null;
         if(withSearching) query = query.Where(c => 
@@ -50,7 +50,7 @@ public class CustomerController : ControllerBase
     [HttpGet("{id}")]
     public async Task<CustomerDTO> GetAsync(Guid id) 
     {
-        var getOne = await _repository.GetByIdAsync(id);
+        var getOne = await _unitOfWork.Customers.GetByIdAsync(id);
         var result = _map.Map<CustomerDTO>(getOne);
         return result;
     }
@@ -61,7 +61,9 @@ public class CustomerController : ControllerBase
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
         Customer customer = _map.Map<Customer>(customerCreateDTO);
-        await _repository.AddAsync(customer);
+        await _unitOfWork.Customers.AddAsync(customer);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
         var res = _map.Map<CustomerDTO>(customer);
         return res;
     }
@@ -71,12 +73,16 @@ public class CustomerController : ControllerBase
         if (id != customerUpdateDTO.Id)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Customer customer = _map.Map<Customer>(customerUpdateDTO);
-        await _repository.UpdateAsync(customer);
+        await _unitOfWork.Customers.UpdateAsync(customer);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
     }
     [HttpDelete("{id}")]
     public async Task DeleteAsync(Guid id)
     {
-        var entity = await _repository.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
-        await _repository.DeleteAsync(entity);
+        var entity = await _unitOfWork.Customers.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
+        await _unitOfWork.Customers.DeleteAsync(entity);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
     }
 }

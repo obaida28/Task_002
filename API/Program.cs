@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Core.Interfaces;
 using Infrastructure.Data;
+using API.ServiceExtension;
 using Microsoft.AspNetCore.Mvc;
 // using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // builder.Services.AddMemoryCache();
-builder.Services.AddScoped<ICarRepository, CarRepository>();
-builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-builder.Services.AddScoped<IDriverRepository, DriverRepository>();
+// builder.Services.AddScoped<ICarRepository, CarRepository>();
+// builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+// builder.Services.AddScoped<IDriverRepository, DriverRepository>();
 // builder.Services.AddScoped<ICarCache, CarCache>();
 // builder.Services.AddScoped<ICarService, CarService>();
 // builder.Services.AddScoped(typeof(IGenericCache<>), typeof(GenericCache<>));
@@ -19,6 +20,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddAutoMapper(typeof(Program));
 // builder.Services.Configure<ApiBehaviorOptions>(options => {    
 // options.SuppressModelStateInvalidFilter = true;  });
+builder.Services.AddDIServices(builder.Configuration);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("LocalConnection")));
 builder.Services.AddControllers().AddJsonOptions(x =>

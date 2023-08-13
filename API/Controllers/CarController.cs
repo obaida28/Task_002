@@ -14,11 +14,11 @@ namespace API.Controllers;
 [ApiController]
 public class CarController : ControllerBase 
 {
-    private readonly ICarRepository _repository; 
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _map;
-    public CarController(ICarRepository repository , IMapper map)
+    public CarController(IUnitOfWork unitOfWork , IMapper map)
     {
-        _repository = repository;
+        _unitOfWork = unitOfWork;
         _map = map;
     }
     
@@ -28,7 +28,7 @@ public class CarController : ControllerBase
         if(input == null)
             throw new BadHttpRequestException("Requied input");
         
-        var query = _repository.GetQueryable();
+        var query = _unitOfWork.Cars.GetQueryable();
 
         bool withSearching = input.SearchingValue != null;
         if(withSearching) 
@@ -66,7 +66,7 @@ public class CarController : ControllerBase
     {
         if (id == Guid.Empty)
             throw new BadHttpRequestException("Id is Required");
-        var getOne = await _repository.GetByIdAsync(id);
+        var getOne = await _unitOfWork.Cars.GetByIdAsync(id);
         var result = _map.Map<CarDTO>(getOne);
         return result;
     }
@@ -76,10 +76,12 @@ public class CarController : ControllerBase
     {
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
-        bool isExist = await _repository.IsExistAsync(carCreateDto.Number);
+        bool isExist = await _unitOfWork.Cars.IsExistAsync(carCreateDto.Number);
         if(isExist) throw new BadHttpRequestException("The car number is unique !");
         var entity = _map.Map<Car>(carCreateDto);
-        await _repository.AddAsync(entity);
+        await _unitOfWork.Cars.AddAsync(entity);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
         var res = _map.Map<CarDTO>(entity);
         return res;
     }
@@ -92,7 +94,9 @@ public class CarController : ControllerBase
         if (id != carUpdateDTO.Id)
             throw new BadHttpRequestException("Object id is not compatible with the pass id");
         Car car = _map.Map<Car>(carUpdateDTO);
-        await _repository.UpdateAsync(car);
+        await _unitOfWork.Cars.UpdateAsync(car);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
     }
 
     [HttpDelete("{id}")]
@@ -100,8 +104,10 @@ public class CarController : ControllerBase
     {
         if (id == Guid.Empty)
             throw new BadHttpRequestException("Id is Required");
-        var entity = await _repository.GetByIdAsync(id) ?? 
+        var entity = await _unitOfWork.Cars.GetByIdAsync(id) ?? 
             throw new BadHttpRequestException("This id is invalid");
-        await _repository.DeleteAsync(entity);
+        await _unitOfWork.Cars.DeleteAsync(entity);
+        var result = await _unitOfWork.SaveAsync();
+        if(result == 0) throw new BadHttpRequestException("bad request!");
     }
 }
