@@ -20,6 +20,6 @@ public class RentalProfile : Profile
             .ForMember(dest => dest.CustomerName  ,opt => opt.MapFrom(src => src.Customer.Name))
             .ForMember(dest => dest.DriverName  ,opt => opt.MapFrom(src => src.Driver.Name));
 
-        // CreateMap<PagingResult<Car> , PagingResult<CarDTO>>();
+        CreateMap<PagingResult<Rental> , PagingResult<RentalDTO>>();
     }
 }

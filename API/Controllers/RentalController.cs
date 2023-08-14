@@ -6,6 +6,7 @@ using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 // using System.Linq.Dynamic.Core;
 using System.Net;
 
@@ -78,4 +79,66 @@ public class RentalController : ControllerBase
         var res = _map.Map<RentalDTO>(entity);
         return res;
     }
+
+    [HttpGet(template: "GetListAsync")]
+    public async Task<PagingResult<RentalDTO>> GetListAsync(RentalRequestDTO input) 
+    {
+        if(input == null)
+            throw new BadHttpRequestException("Requied input");
+        
+        var queryCar = _unitOfWork.Cars.GetQueryable();
+        var queryCustomer = _unitOfWork.Customers.GetQueryable();
+        var queryDriver = _unitOfWork.Drivers.GetQueryable();
+        var queryRental = _unitOfWork.Rentals.GetQueryable();
+
+        bool withSearching = input.SearchingValue != null;
+        if(withSearching) 
+        {
+            bool withDecimal = decimal.TryParse(input.SearchingValue, out decimal decimalValue);
+            bool withInt = int.TryParse(input.SearchingValue, out int intValue);
+             queryCar = queryCar.Where(c => 
+                c.Type.ToLower().Contains(input.SearchingValue) || 
+                c.Color.ToLower().Contains(input.SearchingValue) || 
+                c.Number.ToLower().Contains(input.SearchingValue) ||
+                (withDecimal && c.EngineCapacity == decimalValue) || (withInt && c.DailyRate == intValue));
+
+            queryCustomer = queryCustomer.Where(c => 
+                c.Name.ToLower().Contains(input.SearchingValue));
+
+            queryDriver = queryDriver.Where(c => 
+                c.Name.ToLower().Contains(input.SearchingValue));
+        }
+        queryRental = queryRental.Where
+            (r => 
+                queryCar.Any(c => c.Id == r.CarId) ||
+                queryCustomer.Any(c => c.Id == r.CustomerId) || 
+                (r.DriverId.HasValue &&  queryDriver.Any(d => d.Id == r.DriverId.Value))
+            );
+
+        int countFilterd = await queryRental.CountAsync();
+
+        bool withSorting = input.OrderByData != null;
+        if(withSorting) 
+        {
+            queryRental = input.OrderByData switch
+            {
+                "Type" => input.ASC ? queryRental.OrderBy(c => c.Car.Type) : queryRental.OrderByDescending(c => c.Car.Type),
+                "Color" => input.ASC ? queryRental.OrderBy(c => c.Car.Color) : queryRental.OrderByDescending(c => c.Car.Color),
+                "EngineCapacity" => input.ASC ? queryRental.OrderBy(c => c.Car.EngineCapacity) : queryRental.OrderByDescending(c => c.Car.EngineCapacity),
+                "DailyRate" => input.ASC ? queryRental.OrderBy(c => c.DailyRate) : queryRental.OrderByDescending(c => c.DailyRate),
+                "CarNumber" => input.ASC ? queryRental.OrderBy(c => c.Car.Number) : queryRental.OrderByDescending(c => c.Car.Number),
+                "CustomerName" => input.ASC ? queryRental.OrderBy(c => c.Customer.Name) : queryRental.OrderByDescending(c => c.Customer.Name),
+                "DriverName" => input.ASC ? queryRental.OrderBy(c => c.Driver.Name) : queryRental.OrderByDescending(c => c.Driver.Name),
+                _ => input.ASC ? queryRental.OrderBy(c => c.Car.Number) : queryRental.OrderByDescending(c => c.Car.Number),
+            };
+        }
+
+        bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
+        queryRental = queryRental.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
+
+        var entityResult = await queryRental.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
+        var dtoResult = _map.Map<PagingResult<RentalDTO>>(entityResult);
+        return dtoResult;
+    }
+    
 }
