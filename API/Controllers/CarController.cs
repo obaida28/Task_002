@@ -3,6 +3,8 @@ using API.Helpers;
 using AutoMapper;
 using Core.Entites;
 using Core.Interfaces;
+using API.CustomFilters;
+using API.ErrorResponse;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +14,7 @@ using System.Net;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[ApiValidationFilterAttribute]
 public class CarController : ControllerBase 
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -25,9 +28,6 @@ public class CarController : ControllerBase
     [HttpGet(template: "GetListAsync")]
     public async Task<PagingResult<CarDTO>> GetListAsync(CarRequestDTO input) 
     {
-        if(input == null)
-            throw new BadHttpRequestException("Requied input");
-        
         var query = _unitOfWork.Cars.GetQueryable();
 
         bool withSearching = input.SearchingValue != null;
@@ -62,52 +62,51 @@ public class CarController : ControllerBase
         return dtoResult;
     }
     [HttpGet("{id}")]
-    public async Task<CarDTO> GetAsync(Guid id) 
+    public async Task<ApiResponse> GetAsync(Guid id) 
     {
         if (id == Guid.Empty)
-            throw new BadHttpRequestException("Id is Required");
+            return new ApiBadRequestResponse("Id is Required");
         var getOne = await _unitOfWork.Cars.GetByIdAsync(id);
         var result = _map.Map<CarDTO>(getOne);
-        return result;
+        return new ApiOkResponse(result);
     }
     
     [HttpPost]
-    public async Task<CarDTO> CreateAsync(CarCreateDto carCreateDto)
+    public async Task<ApiResponse> CreateAsync(CarCreateDto carCreateDto)
     {
-        if (!ModelState.IsValid)
-            throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
         bool isExist = await _unitOfWork.Cars.IsExistNumberAsync(carCreateDto.Number);
-        if(isExist) throw new BadHttpRequestException("The car number is unique !");
+        if(isExist) return new ApiBadRequestResponse( "The car number is unique !");
         var entity = _map.Map<Car>(carCreateDto);
         await _unitOfWork.Cars.AddAsync(entity);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        if(result == 0) return new ApiBadRequestResponse( "bad request!");
         var res = _map.Map<CarDTO>(entity);
-        return res;
+        return new ApiOkResponse(res);
     }
 
     [HttpPut("{id}")]
-    public async Task UpdateAsync(Guid id, CarUpdateDto carUpdateDTO)
+    public async Task<ApiResponse> UpdateAsync(Guid id, CarUpdateDto carUpdateDTO)
     {
-        if (id == Guid.Empty)
-            throw new BadHttpRequestException("Id is Required");
+         if (id == Guid.Empty)
+             return new ApiBadRequestResponse("Id is Required");
         if (id != carUpdateDTO.Id)
-            throw new BadHttpRequestException("Object id is not compatible with the pass id");
+            return new ApiBadRequestResponse("Object id is not compatible with the pass id");
         Car car = _map.Map<Car>(carUpdateDTO);
         await _unitOfWork.Cars.UpdateAsync(car);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
 
     [HttpDelete("{id}")]
-    public async Task DeleteAsync(Guid id)
+    public async Task<ApiResponse> DeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
-            throw new BadHttpRequestException("Id is Required");
-        var entity = await _unitOfWork.Cars.GetByIdAsync(id) ?? 
-            throw new BadHttpRequestException("This id is invalid");
+            return new ApiBadRequestResponse("Id is Required");
+        var entity = await _unitOfWork.Cars.GetByIdAsync(id);
+        if(entity == null)
+            return new ApiNotFoundResponse("This id is invalid");
         await _unitOfWork.Cars.DeleteAsync(entity);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
 }

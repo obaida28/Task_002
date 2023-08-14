@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq.Dynamic.Core;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using API.ErrorResponse;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
@@ -22,7 +23,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet(template: "GetListAsync")]
-    public async Task<PagingResult<CustomerDTO>> GetListAsync(CustomerRequestDTO input)
+    public async Task<ApiResponse> GetListAsync(CustomerRequestDTO input)
     {
         if(input == null)
             throw new BadHttpRequestException("Requied input");
@@ -44,45 +45,47 @@ public class CustomerController : ControllerBase
 
         var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<CustomerDTO>>(entityResult);
-        return dtoResult;
+        return new ApiOkResponse(dtoResult);
     }
     
     [HttpGet("{id}")]
-    public async Task<CustomerDTO> GetAsync(Guid id) 
+    public async Task<ApiResponse> GetAsync(Guid id) 
     {
         var getOne = await _unitOfWork.Customers.GetByIdAsync(id);
         var result = _map.Map<CustomerDTO>(getOne);
-        return result;
+        return new ApiOkResponse(result);
     }
 
     [HttpPost]
-    public async Task<CustomerDTO> CreateAsync(CustomerCreateDTO customerCreateDTO)
+    public async Task<ApiResponse> CreateAsync(CustomerCreateDTO customerCreateDTO)
     {
-        if (!ModelState.IsValid)
-            throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
         Customer customer = _map.Map<Customer>(customerCreateDTO);
         await _unitOfWork.Customers.AddAsync(customer);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        if(result == 0) return new ApiBadRequestResponse("bad request!");
         var res = _map.Map<CustomerDTO>(customer);
-        return res;
+        return new ApiOkResponse(res);
     }
+    
     [HttpPut("{id}")]
-    public async Task UpdateAsync(Guid id, CustomerUpdateDTO customerUpdateDTO)
+    public async Task<ApiResponse> UpdateAsync(Guid id, CustomerUpdateDTO customerUpdateDTO)
     {
         if (id != customerUpdateDTO.Id)
-            throw new BadHttpRequestException("Object id is not compatible with the pass id");
+            return new ApiBadRequestResponse("Object id is not compatible with the pass id");
         Customer customer = _map.Map<Customer>(customerUpdateDTO);
         await _unitOfWork.Customers.UpdateAsync(customer);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
+    
     [HttpDelete("{id}")]
-    public async Task DeleteAsync(Guid id)
+    public async Task<ApiResponse> DeleteAsync(Guid id)
     {
-        var entity = await _unitOfWork.Customers.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
+        var entity = await _unitOfWork.Customers.GetByIdAsync(id);
+        if(entity == null)
+            return new ApiNotFoundResponse("This id is invalid");
         await _unitOfWork.Customers.DeleteAsync(entity);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
 }

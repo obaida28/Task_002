@@ -1,4 +1,5 @@
 using API.DTOs;
+using API.ErrorResponse;
 using API.Helpers;
 using AutoMapper;
 using Core.Entites;
@@ -21,43 +22,43 @@ public class RentalController : ControllerBase
     {
         _unitOfWork = unitOfWork;
         _map = map;
-    }
-    
+    }  
     [HttpPost]
-    public async Task<RentalDTO> CreateAsync(RentalCreateDto input)
+    public async Task<ApiResponse> CreateAsync(RentalCreateDto input)
     {
-        if (!ModelState.IsValid)
-            throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
-        var entityCar = await _unitOfWork.Cars.GetByIdAsync(input.CarId) ?? 
-            throw new BadHttpRequestException("This car id is invalid");
+        var entityCar = await _unitOfWork.Cars.GetByIdAsync(input.CarId);
+        if(entityCar == null)
+            return new ApiNotFoundResponse("This car id is invalid");
         if(!entityCar.IsAvailable)
-            throw new BadHttpRequestException("This car is not available !");
-        var entityCustomer = await _unitOfWork.Customers.GetByIdAsync(input.CustomerId) ?? 
-            throw new BadHttpRequestException("This customer id is invalid");
+            return new ApiBadRequestResponse("This car is not available !");
+        var entityCustomer = await _unitOfWork.Customers.GetByIdAsync(input.CustomerId);
+        if(entityCustomer == null)
+            return new ApiBadRequestResponse("This customer id is invalid");
         bool IsDriverPassed = input.DriverId != null;
         Driver? entityDriver = null;     
         if(IsDriverPassed)
         {
-            entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)input.DriverId) ?? 
-                throw new BadHttpRequestException("This driver id is invalid"); 
+            entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)input.DriverId);
+            if(entityDriver == null)
+                return new ApiBadRequestResponse("This driver id is invalid");
             if(!entityDriver.IsAvailable)
             {
                 if(entityDriver.SubstituteId != null)
                 {
                     entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)entityDriver.SubstituteId);
                     if(!entityDriver.IsAvailable)
-                        throw new BadHttpRequestException("This driver is not available !");
+                        return new ApiBadRequestResponse("This driver is not available !");
                     else
                         input.DriverId = entityDriver.Id;
                 }
                 else
-                    throw new BadHttpRequestException("This driver is not available !");
+                    return new ApiNotFoundResponse("This driver is not available !");
             }
         }
         if(!input.IsValidPeriod) 
-            throw new BadHttpRequestException("End Date must be greater than or equal to Start Date.");
+            return new ApiBadRequestResponse("End Date must be greater than or equal to Start Date.");
         if(!input.InFutureDate) 
-            throw new BadHttpRequestException("Start Date and End Date must be a future date.");
+            return new ApiBadRequestResponse("Start Date and End Date must be a future date.");
         if(input.DailyRate == 0)
             input.DailyRate = entityCar.DailyRate;
         var entity = _map.Map<Rental>(input);
@@ -72,20 +73,17 @@ public class RentalController : ControllerBase
         }
         var result = await _unitOfWork.SaveAsync();
         //TODO : End Transaction
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        if(result == 0) return new ApiBadRequestResponse("bad request!");
         entity.Car = entityCar;
         entity.Customer = entityCustomer;
         entity.Driver = entityDriver;
         var res = _map.Map<RentalDTO>(entity);
-        return res;
+        return new ApiOkResponse(res);
     }
 
     [HttpGet(template: "GetListAsync")]
-    public async Task<PagingResult<RentalDTO>> GetListAsync(RentalRequestDTO input) 
+    public async Task<ApiResponse> GetListAsync(RentalRequestDTO input) 
     {
-        if(input == null)
-            throw new BadHttpRequestException("Requied input");
-        
         var queryCar = _unitOfWork.Cars.GetQueryable();
         var queryCustomer = _unitOfWork.Customers.GetQueryable();
         var queryDriver = _unitOfWork.Drivers.GetQueryable();
@@ -138,7 +136,6 @@ public class RentalController : ControllerBase
 
         var entityResult = await queryRental.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<RentalDTO>>(entityResult);
-        return dtoResult;
+        return new ApiOkResponse(dtoResult);
     }
-    
 }

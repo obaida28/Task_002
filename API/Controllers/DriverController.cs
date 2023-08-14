@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq.Dynamic.Core;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using API.ErrorResponse;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
@@ -22,10 +23,10 @@ public class DriverController : ControllerBase
     }
 
     [HttpGet(template: "GetListAsync")]
-    public async Task<PagingResult<DriverDTO>> GetListAsync(DriverRequestDTO input)
+    public async Task<ApiResponse> GetListAsync(DriverRequestDTO input)
     {
         if(input == null)
-            throw new BadHttpRequestException("Requied input");
+            return new ApiBadRequestResponse("Requied input");
 
         var query = _unitOfWork.Drivers.GetQueryable();
 
@@ -45,53 +46,53 @@ public class DriverController : ControllerBase
         var entityResult = await query.GetResultAsync
             (withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<DriverDTO>>(entityResult);
-        return dtoResult;
+        return new ApiOkResponse(dtoResult);
     }
-    // [ApiExplorerSettings(IgnoreApi = true)]
+    
     [HttpGet("{id}")]
-    public async Task<DriverDTO> GetAsync(Guid id) 
+    public async Task<ApiResponse> GetAsync(Guid id) 
     {
         if (id == Guid.Empty)
-            throw new BadHttpRequestException("Id is Required");
+            return new ApiBadRequestResponse("Id is Required");
         var getOne = await _unitOfWork.Drivers.GetByIdAsync(id);
         var result = _map.Map<DriverDTO>(getOne);
-        return result;
+        return new ApiOkResponse(result);
     }
 
     [HttpPost]
-    public async Task<DriverDTO> CreateAsync(DriverCreateDTO input)
+    public async Task<ApiResponse> CreateAsync(DriverCreateDTO input)
     {
-        if (!ModelState.IsValid)
-            throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
         Driver driver = _map.Map<Driver>(input);
         await _unitOfWork.Drivers.AddAsync(driver);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        if(result == 0) return new ApiBadRequestResponse("bad request!");
         var res = _map.Map<DriverDTO>(driver);
-        return res;
+        return new ApiOkResponse(res);
     }
 
     [HttpPut("{id}")]
-    public async Task UpdateAsync(Guid id, DriverUpdateDTO input)
+    public async Task<ApiResponse> UpdateAsync(Guid id, DriverUpdateDTO input)
     {
         if (id == Guid.Empty)
-            throw new BadHttpRequestException("Id is Required");
+            return new ApiBadRequestResponse("Id is Required");
         if (id != input.Id)
-            throw new BadHttpRequestException("Object id is not compatible with the pass id");
+            return new ApiBadRequestResponse("Object id is not compatible with the pass id");
         Driver driver = _map.Map<Driver>(input);
         await _unitOfWork.Drivers.UpdateAsync(driver);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
 
     [HttpDelete("{id}")]
-    public async Task DeleteAsync(Guid id)
+    public async Task<ApiResponse> DeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
-            throw new BadHttpRequestException("Id is Required");
-        var entity = await _unitOfWork.Drivers.GetByIdAsync(id) ?? throw new BadHttpRequestException("This id is invalid");
+            return new ApiBadRequestResponse("Id is Required");
+        var entity = await _unitOfWork.Drivers.GetByIdAsync(id);
+        if(entity == null)
+            return new ApiNotFoundResponse("This id is invalid");
         await _unitOfWork.Drivers.DeleteAsync(entity);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) throw new BadHttpRequestException("bad request!");
+        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
 }
