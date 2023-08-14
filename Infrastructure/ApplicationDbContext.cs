@@ -23,23 +23,25 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Rental>()
             .HasOne(r => r.Driver)
             .WithMany(d => d.Rentals)
+            .IsRequired(false)
             .HasForeignKey(r => r.DriverId);
 
         modelBuilder.Entity<Driver>()
             .HasOne(d => d.Substitute)
             .WithOne()
-            .HasForeignKey<Driver>(d => d.SubstituteDriverId)
+            .IsRequired(false)
+            .HasForeignKey<Driver>(d => d.SubstituteId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Driver>().HasData(
-            new Driver { DriverName = "driver1" } ,
-            new Driver { DriverName = "driver2" } ,
-            new Driver { DriverName = "driver3" }
+            new Driver { Name = "driver1" } ,
+            new Driver { Name = "driver2" } ,
+            new Driver { Name = "driver3" }
         );
         modelBuilder.Entity<Customer>().HasData(
-            new Customer { CustomerName = "Customer1" } ,
-            new Customer { CustomerName = "Customer2" } ,
-            new Customer { CustomerName = "Customer3" }
+            new Customer { Name = "Customer1" } ,
+            new Customer { Name = "Customer2" } ,
+            new Customer { Name = "Customer3" }
         );
     }
     public virtual DbSet<Car> Cars {get; set;}
