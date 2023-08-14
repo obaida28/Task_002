@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Migrations
 {
-    public partial class MyMigration : Migration
+    public partial class create_tables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,11 +14,12 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CarNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Number = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EngineCapacity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DailyRate = table.Column<int>(type: "int", nullable: false)
+                    DailyRate = table.Column<int>(type: "int", nullable: false),
+                    IsAvailable = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,7 +31,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -42,16 +43,16 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DriverName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SubstituteDriverId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubstituteId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     IsAvailable = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Drivers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Drivers_Drivers_SubstituteDriverId",
-                        column: x => x.SubstituteDriverId,
+                        name: "FK_Drivers_Drivers_SubstituteId",
+                        column: x => x.SubstituteId,
                         principalTable: "Drivers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -66,7 +67,8 @@ namespace Infrastructure.Migrations
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DriverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DailyRate = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,30 +95,30 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Customers",
-                columns: new[] { "Id", "CustomerName" },
+                columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("37971a40-f28c-4ff9-aa48-701d21ac5caa"), "Customer1" },
-                    { new Guid("73a4e939-fd83-4daa-a450-0e36f2abd68e"), "Customer2" },
-                    { new Guid("d9be45cb-c4db-4dfd-a96d-c075effc04fe"), "Customer3" }
+                    { new Guid("36041f05-5f49-4168-b151-650d7bbd36a1"), "Customer2" },
+                    { new Guid("c42f587e-f172-48ed-965e-a7428f2c9af7"), "Customer3" },
+                    { new Guid("c941d6c1-2621-4054-8eef-359dbddd16a8"), "Customer1" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Drivers",
-                columns: new[] { "Id", "DriverName", "IsAvailable", "SubstituteDriverId" },
+                columns: new[] { "Id", "IsAvailable", "Name", "SubstituteId" },
                 values: new object[,]
                 {
-                    { new Guid("3ed9cb81-cb43-422e-9044-341fec53bc1d"), "driver3", false, null },
-                    { new Guid("91d4d65b-dfd9-4917-80ea-d0386a898c0f"), "driver2", false, null },
-                    { new Guid("c27b643b-48bf-45ff-9f1c-019af65b4808"), "driver1", false, null }
+                    { new Guid("92cc4a11-8d9c-4256-bc66-686ecf59cffa"), false, "driver1", null },
+                    { new Guid("a54cbc66-fabb-4293-b7a6-ba6ba61a4dd5"), false, "driver3", null },
+                    { new Guid("c186dc1b-8f57-4b9f-b9b8-9ece143299c3"), false, "driver2", null }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Drivers_SubstituteDriverId",
+                name: "IX_Drivers_SubstituteId",
                 table: "Drivers",
-                column: "SubstituteDriverId",
+                column: "SubstituteId",
                 unique: true,
-                filter: "[SubstituteDriverId] IS NOT NULL");
+                filter: "[SubstituteId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rentals_CarId",

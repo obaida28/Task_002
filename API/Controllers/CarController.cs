@@ -38,7 +38,7 @@ public class CarController : ControllerBase
              query = query.Where(c => 
                 c.Type.ToLower().Contains(input.SearchingValue) || 
                 c.Color.ToLower().Contains(input.SearchingValue) || 
-                c.CarNumber.ToLower().Contains(input.SearchingValue) ||
+                c.Number.ToLower().Contains(input.SearchingValue) ||
                 (withDecimal && c.EngineCapacity == decimalValue) || (withInt && c.DailyRate == intValue));
         }
            
@@ -51,7 +51,7 @@ public class CarController : ControllerBase
             "Color" => input.ASC ? query.OrderBy(c => c.Color) : query.OrderByDescending(c => c.Color),
             "EngineCapacity" => input.ASC ? query.OrderBy(c => c.EngineCapacity) : query.OrderByDescending(c => c.EngineCapacity),
             "DailyRate" => input.ASC ? query.OrderBy(c => c.DailyRate) : query.OrderByDescending(c => c.DailyRate),
-            _ => input.ASC ? query.OrderBy(c => c.CarNumber) : query.OrderByDescending(c => c.CarNumber),
+            _ => input.ASC ? query.OrderBy(c => c.Number) : query.OrderByDescending(c => c.Number),
         };
 
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
@@ -76,7 +76,7 @@ public class CarController : ControllerBase
     {
         if (!ModelState.IsValid)
             throw new BadHttpRequestException("Validation failed. Please check the input and correct any errors.");
-        bool isExist = await _unitOfWork.Cars.IsExistAsync(carCreateDto.Number);
+        bool isExist = await _unitOfWork.Cars.IsExistNumberAsync(carCreateDto.Number);
         if(isExist) throw new BadHttpRequestException("The car number is unique !");
         var entity = _map.Map<Car>(carCreateDto);
         await _unitOfWork.Cars.AddAsync(entity);

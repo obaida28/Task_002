@@ -28,10 +28,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CarNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -41,6 +37,13 @@ namespace Infrastructure.Migrations
 
                     b.Property<decimal>("EngineCapacity")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -57,7 +60,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CustomerName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -68,18 +71,18 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("37971a40-f28c-4ff9-aa48-701d21ac5caa"),
-                            CustomerName = "Customer1"
+                            Id = new Guid("c941d6c1-2621-4054-8eef-359dbddd16a8"),
+                            Name = "Customer1"
                         },
                         new
                         {
-                            Id = new Guid("73a4e939-fd83-4daa-a450-0e36f2abd68e"),
-                            CustomerName = "Customer2"
+                            Id = new Guid("36041f05-5f49-4168-b151-650d7bbd36a1"),
+                            Name = "Customer2"
                         },
                         new
                         {
-                            Id = new Guid("d9be45cb-c4db-4dfd-a96d-c075effc04fe"),
-                            CustomerName = "Customer3"
+                            Id = new Guid("c42f587e-f172-48ed-965e-a7428f2c9af7"),
+                            Name = "Customer3"
                         });
                 });
 
@@ -89,42 +92,42 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DriverName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("SubstituteDriverId")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SubstituteId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubstituteDriverId")
+                    b.HasIndex("SubstituteId")
                         .IsUnique()
-                        .HasFilter("[SubstituteDriverId] IS NOT NULL");
+                        .HasFilter("[SubstituteId] IS NOT NULL");
 
                     b.ToTable("Drivers");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c27b643b-48bf-45ff-9f1c-019af65b4808"),
-                            DriverName = "driver1",
-                            IsAvailable = false
+                            Id = new Guid("92cc4a11-8d9c-4256-bc66-686ecf59cffa"),
+                            IsAvailable = false,
+                            Name = "driver1"
                         },
                         new
                         {
-                            Id = new Guid("91d4d65b-dfd9-4917-80ea-d0386a898c0f"),
-                            DriverName = "driver2",
-                            IsAvailable = false
+                            Id = new Guid("c186dc1b-8f57-4b9f-b9b8-9ece143299c3"),
+                            IsAvailable = false,
+                            Name = "driver2"
                         },
                         new
                         {
-                            Id = new Guid("3ed9cb81-cb43-422e-9044-341fec53bc1d"),
-                            DriverName = "driver3",
-                            IsAvailable = false
+                            Id = new Guid("a54cbc66-fabb-4293-b7a6-ba6ba61a4dd5"),
+                            IsAvailable = false,
+                            Name = "driver3"
                         });
                 });
 
@@ -139,6 +142,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DailyRate")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("DriverId")
                         .IsRequired()
@@ -165,7 +171,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Core.Entites.Driver", "Substitute")
                         .WithOne()
-                        .HasForeignKey("Core.Entites.Driver", "SubstituteDriverId")
+                        .HasForeignKey("Core.Entites.Driver", "SubstituteId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Substitute");

@@ -31,13 +31,13 @@ public class DriverController : ControllerBase
 
         bool withSearching = input.SearchingValue != null;
         if(withSearching) query = query.Where(c => 
-            c.DriverName.ToLower().Contains(input.SearchingValue));
+            c.Name.ToLower().Contains(input.SearchingValue));
 
         int countFilterd = await query.CountAsync();
 
         bool withSorting = input.OrderByData != null;
-        if(withSorting) query = input.ASC ? query.OrderBy(c => c.DriverName) :
-             query.OrderByDescending(c => c.DriverName);
+        if(withSorting) query = input.ASC ? query.OrderBy(c => c.Name) :
+             query.OrderByDescending(c => c.Name);
         
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
         query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
