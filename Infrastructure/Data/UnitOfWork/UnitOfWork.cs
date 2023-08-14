@@ -10,10 +10,12 @@ public class UnitOfWork : IUnitOfWork
         Cars = new CarRepository(_context);
         Customers = new CustomerRepository(_context);
         Drivers = new DriverRepository(_context);
+        Rentals = new RentalRepository(_context);
     }
     public ICarRepository Cars { get; }
     public ICustomerRepository Customers { get; }
     public IDriverRepository Drivers { get; }
+    public IRentalRepository Rentals { get; }
 
     public async void Dispose() => await _context.DisposeAsync();
 

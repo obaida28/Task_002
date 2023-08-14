@@ -35,4 +35,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         _context.Set<T>().Update(entity);
         //await _context.SaveChangesAsync();
     }
+
+    public async Task<bool> IsExistAsync(Guid id)
+    {
+        return await _context.Set<T>().AnyAsync(e => e.Id == id);
+    }
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Core.Entites;
 public class Rental : BaseEntity
 {
@@ -9,5 +11,6 @@ public class Rental : BaseEntity
     public virtual Driver Driver { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
+    public int DailyRate { get; set; }
     public Rental() : base() {}
 }
