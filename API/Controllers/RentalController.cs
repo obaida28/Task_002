@@ -33,32 +33,25 @@ public class RentalController : ControllerBase
             return new ApiBadRequestResponse("This car is not available !");
         var entityCustomer = await _unitOfWork.Customers.GetByIdAsync(input.CustomerId);
         if(entityCustomer == null)
-            return new ApiBadRequestResponse("This customer id is invalid");
+            return new ApiNotFoundResponse("This customer id is invalid");
         bool IsDriverPassed = input.DriverId != null;
         Driver? entityDriver = null;     
         if(IsDriverPassed)
         {
             entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)input.DriverId);
             if(entityDriver == null)
-                return new ApiBadRequestResponse("This driver id is invalid");
+                return new ApiNotFoundResponse("This driver id is invalid");
             if(!entityDriver.IsAvailable)
             {
-                if(entityDriver.SubstituteId != null)
-                {
-                    entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)entityDriver.SubstituteId);
-                    if(!entityDriver.IsAvailable)
-                        return new ApiBadRequestResponse("This driver is not available !");
-                    else
-                        input.DriverId = entityDriver.Id;
-                }
-                else
+                if(entityDriver.SubstituteId == null)
                     return new ApiNotFoundResponse("This driver is not available !");
+                entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)entityDriver.SubstituteId);
+                if(!entityDriver.IsAvailable)
+                    return new ApiBadRequestResponse("This driver is not available !");
+                else
+                    input.DriverId = entityDriver.Id;   
             }
         }
-        if(!input.IsValidPeriod) 
-            return new ApiBadRequestResponse("End Date must be greater than or equal to Start Date.");
-        if(!input.InFutureDate) 
-            return new ApiBadRequestResponse("Start Date and End Date must be a future date.");
         if(input.DailyRate == 0)
             input.DailyRate = entityCar.DailyRate;
         var entity = _map.Map<Rental>(input);

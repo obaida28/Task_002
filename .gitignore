@@ -2,3 +2,9 @@ API/obj/Debug/net6.0/API.assets.cache
 API/obj/Debug/net6.0/API.csproj.AssemblyReference.cache
 API/obj/Debug/net6.0/API.GeneratedMSBuildEditorConfig.editorconfig
 API/obj/Debug/net6.0/API.RazorAssemblyInfo.cache
+Core/obj/Debug/net6.0/Core.assets.cache
+Core/obj/Debug/net6.0/Core.csproj.AssemblyReference.cache
+Core/obj/Debug/net6.0/Core.GeneratedMSBuildEditorConfig.editorconfig
+Infrastructure/obj/Debug/net6.0/Infrastructure.assets.cache
+Infrastructure/obj/Debug/net6.0/Infrastructure.csproj.AssemblyReference.cache
+Infrastructure/obj/Debug/net6.0/Infrastructure.GeneratedMSBuildEditorConfig.editorconfig

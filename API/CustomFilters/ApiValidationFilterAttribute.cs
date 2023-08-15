@@ -10,7 +10,6 @@ namespace API.CustomFilters
         {
             if (!context.ModelState.IsValid)
             {
-                //Validation failed. Please check the input and correct any errors."
                 context.Result = new BadRequestObjectResult(new ApiBadRequestResponse(context.ModelState));
             }
 
