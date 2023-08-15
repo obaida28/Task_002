@@ -5,8 +5,8 @@ namespace Core.Interfaces;
 public interface IGenericRepository<T> where T : BaseEntity
 {
     Task AddAsync(T entity);
-    Task UpdateAsync(T entity);
-    Task DeleteAsync(T entity);
+    void Update(T entity);
+    void Delete(T entity);
     Task<T> GetByIdAsync(Guid id);
     IQueryable<T> GetQueryable();
     Task<bool> IsExistAsync(Guid id);

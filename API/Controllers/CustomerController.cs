@@ -8,10 +8,12 @@ using System.Linq.Dynamic.Core;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using API.ErrorResponse;
+using API.CustomFilters;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[ApiValidationFilterAttribute]
 public class CustomerController : ControllerBase 
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -73,7 +75,7 @@ public class CustomerController : ControllerBase
         if (id != customerUpdateDTO.Id)
             return new ApiBadRequestResponse("Object id is not compatible with the pass id");
         Customer customer = _map.Map<Customer>(customerUpdateDTO);
-        await _unitOfWork.Customers.UpdateAsync(customer);
+        _unitOfWork.Customers.Update(customer);
         var result = await _unitOfWork.SaveAsync();
         return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
@@ -84,7 +86,7 @@ public class CustomerController : ControllerBase
         var entity = await _unitOfWork.Customers.GetByIdAsync(id);
         if(entity == null)
             return new ApiNotFoundResponse("This id is invalid");
-        await _unitOfWork.Customers.DeleteAsync(entity);
+        _unitOfWork.Customers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }

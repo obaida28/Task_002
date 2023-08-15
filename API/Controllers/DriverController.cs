@@ -8,10 +8,12 @@ using System.Linq.Dynamic.Core;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using API.ErrorResponse;
+using API.CustomFilters;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[ApiValidationFilterAttribute]
 public class DriverController : ControllerBase 
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -78,7 +80,7 @@ public class DriverController : ControllerBase
         if (id != input.Id)
             return new ApiBadRequestResponse("Object id is not compatible with the pass id");
         Driver driver = _map.Map<Driver>(input);
-        await _unitOfWork.Drivers.UpdateAsync(driver);
+        _unitOfWork.Drivers.Update(driver);
         var result = await _unitOfWork.SaveAsync();
         return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
@@ -91,7 +93,7 @@ public class DriverController : ControllerBase
         var entity = await _unitOfWork.Drivers.GetByIdAsync(id);
         if(entity == null)
             return new ApiNotFoundResponse("This id is invalid");
-        await _unitOfWork.Drivers.DeleteAsync(entity);
+        _unitOfWork.Drivers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }

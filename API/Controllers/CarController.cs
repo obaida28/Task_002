@@ -92,7 +92,7 @@ public class CarController : ControllerBase
         if (id != carUpdateDTO.Id)
             return new ApiBadRequestResponse("Object id is not compatible with the pass id");
         Car car = _map.Map<Car>(carUpdateDTO);
-        await _unitOfWork.Cars.UpdateAsync(car);
+        _unitOfWork.Cars.Update(car);
         var result = await _unitOfWork.SaveAsync();
         return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
@@ -105,7 +105,7 @@ public class CarController : ControllerBase
         var entity = await _unitOfWork.Cars.GetByIdAsync(id);
         if(entity == null)
             return new ApiNotFoundResponse("This id is invalid");
-        await _unitOfWork.Cars.DeleteAsync(entity);
+        _unitOfWork.Cars.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
     }
