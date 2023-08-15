@@ -67,9 +67,8 @@ public class DriverController : ControllerBase
         Driver driver = _map.Map<Driver>(input);
         await _unitOfWork.Drivers.AddAsync(driver);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) return new ApiBadRequestResponse("bad request!");
-        var res = _map.Map<DriverDTO>(driver);
-        return new ApiOkResponse(res);
+        var dto = _map.Map<DriverDTO>(driver);
+        return ApiResponse.response(result , dto);
     }
 
     [HttpPut("{id}")]
@@ -82,7 +81,7 @@ public class DriverController : ControllerBase
         Driver driver = _map.Map<Driver>(input);
         _unitOfWork.Drivers.Update(driver);
         var result = await _unitOfWork.SaveAsync();
-        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
+       return ApiResponse.response(result);
     }
 
     [HttpDelete("{id}")]
@@ -95,6 +94,6 @@ public class DriverController : ControllerBase
             return new ApiNotFoundResponse("This id is invalid");
         _unitOfWork.Drivers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
-        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
+        return ApiResponse.response(result);
     }
 }

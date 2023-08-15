@@ -25,6 +25,7 @@ public class RentalController : ControllerBase
         _unitOfWork = unitOfWork;
         _map = map;
     }  
+    
     [HttpPost]
     public async Task<ApiResponse> CreateAsync(RentalCreateDto input)
     {
@@ -68,12 +69,11 @@ public class RentalController : ControllerBase
         }
         var result = await _unitOfWork.SaveAsync();
         //TODO : End Transaction
-        if(result == 0) return new ApiBadRequestResponse("bad request!");
         entity.Car = entityCar;
         entity.Customer = entityCustomer;
         entity.Driver = entityDriver;
         var res = _map.Map<RentalDTO>(entity);
-        return new ApiOkResponse(res);
+        return ApiResponse.response(result , res);
     }
 
     [HttpGet(template: "GetListAsync")]
@@ -135,7 +135,7 @@ public class RentalController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<object> UpdateAsync(Guid id , RentalUpdateDTO input)
+    public async Task<ApiResponse> UpdateAsync(Guid id , RentalUpdateDTO input)
     {
         if (id == Guid.Empty)
             return new ApiBadRequestResponse("Id is Required");
@@ -143,6 +143,7 @@ public class RentalController : ControllerBase
             return new ApiBadRequestResponse("Object id is not compatible with the pass id");
         
         var entityRental = await _unitOfWork.Rentals.GetByIdAsync(id);
+
         if(!entityRental.IsActive)
             return new ApiBadRequestResponse("This rental is not active !");
         bool changeCar = entityRental.CarId != input.CarId;
@@ -183,16 +184,9 @@ public class RentalController : ControllerBase
             }
         }
         var oldCarId = entityRental.CarId;
-        //entityRental = _map.Map<Rental>(input);
-        
-        // entityRental.StartDate = oldEntityRental.StartDate;
-        
-        // TODO : Begin Transaction
-        entityRental.CarId = input.CarId;
-        entityRental.CustomerId = input.CustomerId;
-        entityRental.DailyRate = input.DailyRate;
-        entityRental.DriverId = input.DriverId;
-        entityRental.EndDate = input.EndDate;
+        var startDate = entityRental.StartDate;
+        _map.Map(input, entityRental);
+        entityRental.StartDate = startDate;
         if(changeCar)
         {
             var oldEntityCar = await _unitOfWork.Cars.GetByIdAsync(oldCarId);
@@ -206,16 +200,7 @@ public class RentalController : ControllerBase
             entityRental.EndDate = DateTime.Now;
         }
         var result = await _unitOfWork.SaveAsync();
-        // TODO : End Transaction
-        var dtoResult = _map.Map<RentalDTO>(entityRental);
-        return 
-        result == 0 ? new ApiBadRequestResponse("Bad Request") : 
-        new ApiOkResponse(dtoResult);
-        // new {
-        //     a = entityRental ,
-        //     b = oldEntityRental
-        // };
-        
+        return ApiResponse.response(result);
     }
     
     [HttpDelete("{id}")]
@@ -235,7 +220,7 @@ public class RentalController : ControllerBase
         }
         _unitOfWork.Rentals.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
-        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
+        return ApiResponse.response(result);
     }
 
     [HttpGet("{id}")]

@@ -64,9 +64,8 @@ public class CustomerController : ControllerBase
         Customer customer = _map.Map<Customer>(customerCreateDTO);
         await _unitOfWork.Customers.AddAsync(customer);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) return new ApiBadRequestResponse("bad request!");
-        var res = _map.Map<CustomerDTO>(customer);
-        return new ApiOkResponse(res);
+        var dto = _map.Map<CustomerDTO>(customer);
+        return ApiResponse.response(result , dto);
     }
     
     [HttpPut("{id}")]
@@ -77,7 +76,7 @@ public class CustomerController : ControllerBase
         Customer customer = _map.Map<Customer>(customerUpdateDTO);
         _unitOfWork.Customers.Update(customer);
         var result = await _unitOfWork.SaveAsync();
-        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
+        return ApiResponse.response(result);
     }
     
     [HttpDelete("{id}")]
@@ -88,6 +87,6 @@ public class CustomerController : ControllerBase
             return new ApiNotFoundResponse("This id is invalid");
         _unitOfWork.Customers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
-        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
+        return ApiResponse.response(result);
     }
 }

@@ -26,7 +26,7 @@ public class CarController : ControllerBase
     }
     
     [HttpGet(template: "GetListAsync")]
-    public async Task<PagingResult<CarDTO>> GetListAsync(CarRequestDTO input) 
+    public async Task<ApiResponse> GetListAsync(CarRequestDTO input) 
     {
         var query = _unitOfWork.Cars.GetQueryable();
 
@@ -59,8 +59,9 @@ public class CarController : ControllerBase
 
         var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<CarDTO>>(entityResult);
-        return dtoResult;
+        return new ApiOkResponse(dtoResult);
     }
+    
     [HttpGet("{id}")]
     public async Task<ApiResponse> GetAsync(Guid id) 
     {
@@ -79,9 +80,8 @@ public class CarController : ControllerBase
         var entity = _map.Map<Car>(carCreateDto);
         await _unitOfWork.Cars.AddAsync(entity);
         var result = await _unitOfWork.SaveAsync();
-        if(result == 0) return new ApiBadRequestResponse( "bad request!");
-        var res = _map.Map<CarDTO>(entity);
-        return new ApiOkResponse(res);
+        var dto = _map.Map<CarDTO>(entity);
+        return ApiResponse.response(result , dto);
     }
 
     [HttpPut("{id}")]
@@ -94,7 +94,7 @@ public class CarController : ControllerBase
         Car car = _map.Map<Car>(carUpdateDTO);
         _unitOfWork.Cars.Update(car);
         var result = await _unitOfWork.SaveAsync();
-        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
+        return ApiResponse.response(result);
     }
 
     [HttpDelete("{id}")]
@@ -107,6 +107,6 @@ public class CarController : ControllerBase
             return new ApiNotFoundResponse("This id is invalid");
         _unitOfWork.Cars.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
-        return result == 0 ? new ApiBadRequestResponse( "Bad Request") : new ApiOkResponse();
+        return ApiResponse.response(result);
     }
 }
