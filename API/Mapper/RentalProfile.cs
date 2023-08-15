@@ -11,8 +11,10 @@ public class RentalProfile : Profile
        CreateMap<RentalCreateDto, Rental>();
             //.ForMember(dest => dest.IsValidPeriod, opt => opt.Ignore());
 
-        // CreateMap < CarUpdateDto, Car > ()
-        //     .ForMember(dest => dest.CarNumber , opt => opt.MapFrom(src => src.Number));
+        CreateMap < RentalUpdateDTO, Rental > ()
+            .ForMember(dest => dest.IsActive , opt => opt.Ignore());
+            // .ForMember(dest => dest. , opt => opt.Ignore())
+
 
         CreateMap<Rental, RentalDTO> ()
             .ForMember(dest => dest.CarNumber  ,opt => opt.MapFrom(src => src.Car.Number))

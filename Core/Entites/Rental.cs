@@ -12,5 +12,7 @@ public class Rental : BaseEntity
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int DailyRate { get; set; }
+    [NotMapped]
+    public bool IsActive => EndDate >= DateTime.Now;
     public Rental() : base() {}
 }
