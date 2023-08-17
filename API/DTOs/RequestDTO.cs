@@ -12,7 +12,7 @@ public class RequestDTO<T> where T : BaseEntity
 
     public string OrderByData { get; set; }
 
-    public bool ASC { get; set; } = true;
-    
+    // public bool ASC { get; set; } = true;
+
     public string SearchingValue { get; set; }
 }

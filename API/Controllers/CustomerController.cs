@@ -39,8 +39,11 @@ public class CustomerController : ControllerBase
         int countFilterd = await query.CountAsync();
 
         bool withSorting = input.OrderByData != null;
-        if(withSorting) query = input.ASC ? 
-            query.OrderBy(c => c.Name) : query.OrderByDescending(c => c.Name);
+        if(withSorting) 
+        {
+            bool IsDesc = input.OrderByData.ToLower().Contains("desc");
+            query = !IsDesc ? query.OrderBy(c => c.Name) : query.OrderByDescending(c => c.Name);
+        }
         
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
         query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
