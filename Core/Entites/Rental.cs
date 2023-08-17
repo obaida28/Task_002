@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entites;
@@ -12,7 +13,9 @@ public class Rental : BaseEntity
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int DailyRate { get; set; }
+    [MaxLength(30)]
+    public string State { get; set; }
     [NotMapped]
-    public bool IsActive => EndDate >= DateTime.Now;
+    public bool IsActive => EndDate >= DateTime.Now.Date && StartDate < DateTime.Now.Date;
     public Rental() : base() {}
 }

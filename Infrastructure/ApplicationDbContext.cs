@@ -33,16 +33,19 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey<Driver>(d => d.SubstituteId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Driver>().HasData(
-            new Driver { Name = "driver1" } ,
-            new Driver { Name = "driver2" } ,
-            new Driver { Name = "driver3" }
-        );
-        modelBuilder.Entity<Customer>().HasData(
-            new Customer { Name = "Customer1" } ,
-            new Customer { Name = "Customer2" } ,
-            new Customer { Name = "Customer3" }
-        );
+        // modelBuilder.Entity<Driver>().HasData(
+        //     new Driver { Name = "driver1" } ,
+        //     new Driver { Name = "driver2" } ,
+        //     new Driver { Name = "driver3" }
+        // );
+        // modelBuilder.Entity<Customer>().HasData(
+        //     new Customer { Name = "Customer1" } ,
+        //     new Customer { Name = "Customer2" } ,
+        //     new Customer { Name = "Customer3" }
+        // );
+        modelBuilder.Entity<Rental>().Property(r => r.State).HasDefaultValue("Created");
+        modelBuilder.Entity<Rental>().Property(r => r.StartDate).HasColumnType("date");
+        modelBuilder.Entity<Rental>().Property(r => r.EndDate).HasColumnType("date");
     }
     public virtual DbSet<Car> Cars {get; set;}
     public virtual DbSet<Customer> Customers { get; set; }
