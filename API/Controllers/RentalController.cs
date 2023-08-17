@@ -52,7 +52,7 @@ public class RentalController : ControllerBase
 
         var queryRental = _unitOfWork.Rentals.GetQueryable();
         var isNotAvailableCar = await queryRental.AnyAsync
-            (r => r.CarId == input.CarId &&
+            (r => (r.State == "Created" || r.State == "Active") && r.CarId == input.CarId &&
                 (
                     (input.StartDate.Date >= r.StartDate && input.StartDate.Date <= r.EndDate) ||
                     (input.EndDate.Date >= r.StartDate && input.EndDate.Date <= r.EndDate)
@@ -61,7 +61,7 @@ public class RentalController : ControllerBase
         if(isNotAvailableCar)
             return ApiBadRequestResponse.BADresponse("This car is not available between this dates !");
         var isNotAvailableDriver = await queryRental.AnyAsync
-            (r => 
+            (r => (r.State == "Created" || r.State == "Active") && 
                 input.DriverId != null && r.DriverId == input.DriverId && 
                 (
                     (input.StartDate.Date >= r.StartDate && input.StartDate.Date <= r.EndDate) ||
@@ -184,8 +184,8 @@ public class RentalController : ControllerBase
         var entityRental = await _unitOfWork.Rentals.GetByIdAsync(id);
         var queryRental = _unitOfWork.Rentals.GetQueryable();
 
-        if(!entityRental.IsActive)
-            return ApiBadRequestResponse.BADresponse("This rental is not active !");
+        // if(!entityRental.IsActive)
+        //     return ApiBadRequestResponse.BADresponse("This rental is not active !");
         bool changeCar = entityRental.CarId != input.CarId;
         bool changeCustomer = entityRental.CustomerId != input.CustomerId;
         bool changeDriver = entityRental.DriverId != input.DriverId;
@@ -195,10 +195,8 @@ public class RentalController : ControllerBase
         {
             if(entityCar == null)
                 return ApiNotFoundResponse.NOTresponse("This car id is invalid");
-            
-             
             var isNotAvailableCar = await queryRental.AnyAsync
-            (r => r.CarId == input.CarId &&
+            (r => (r.State == "Created" || r.State == "Active") &&  r.CarId == input.CarId &&
                 (
                     (input.StartDate.Date >= r.StartDate && input.StartDate.Date <= r.EndDate) ||
                     (input.EndDate.Date >= r.StartDate && input.EndDate.Date <= r.EndDate)
@@ -224,18 +222,9 @@ public class RentalController : ControllerBase
             entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)input.DriverId);
             if(entityDriver == null)
                 return ApiNotFoundResponse.NOTresponse("This driver id is invalid");
-            // if(!entityDriver.IsAvailable)
-            // {
-            //     if(entityDriver.SubstituteId == null)
-            //         return ApiNotFoundResponse.NOTresponse("This driver is not available !");
-            //     entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)entityDriver.SubstituteId);
-            //     if(!entityDriver.IsAvailable)
-            //         return ApiBadRequestResponse.BADresponse("This driver is not available !");
-            //     else
-            //         input.DriverId = entityDriver.Id;   
-            // }
+   
             var isNotAvailableDriver = await queryRental.AnyAsync
-            (r => r.DriverId == input.DriverId && 
+            (r => (r.State == "Created" || r.State == "Active") &&  r.DriverId == input.DriverId && 
                 (
                     (input.StartDate.Date >= r.StartDate && input.StartDate.Date <= r.EndDate) ||
                     (input.EndDate.Date >= r.StartDate && input.EndDate.Date <= r.EndDate)
@@ -261,6 +250,7 @@ public class RentalController : ControllerBase
             }
         }
         var oldCarId = entityRental.CarId;
+        var oldDriverId = entityRental.DriverId;
         var startDate = entityRental.StartDate;
         _map.Map(input, entityRental);
         entityRental.StartDate = startDate.Date;
@@ -273,12 +263,49 @@ public class RentalController : ControllerBase
                 entityCar.IsAvailable = false;
             }
         }
-        if(input.FinishRental)
+        if(changeDriver)
         {
-            entityCar.IsAvailable = true;
-            if(entityDriver != null) entityDriver.IsAvailable = true;
-            entityRental.EndDate = DateTime.Now.Date;
+            if(oldDriverId != null)
+            {
+                var oldEntityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)oldDriverId);
+                if(entityRental.IsActive)
+                    oldEntityDriver.IsAvailable = true;
+            }
+            if(entityDriver != null && entityRental.IsActive)
+                entityDriver.IsAvailable = false;
         }
+        // if(input.FinishRental)
+        // {
+        //     entityCar.IsAvailable = true;
+        //     if(entityDriver != null) entityDriver.IsAvailable = true;
+        //     entityRental.EndDate = DateTime.Now.Date;
+        // }
+        var result = await _unitOfWork.SaveAsync();
+        return ApiResponse.response(result);
+    }
+    
+    [HttpPut("ChangeState/{id}")]
+    public async Task<ApiResponse> ChangeStateAsync(Guid id , string newState)
+    {
+        if (id == Guid.Empty)
+            return ApiBadRequestResponse.BADresponse("Id is Required");
+        var entityRental = await _unitOfWork.Rentals.GetByIdAsync(id);
+        if (entityRental == null)
+            return ApiNotFoundResponse.NOTresponse("This Id is invalid");
+        if(entityRental.State == "Finished" || entityRental.State == "Canceled")
+            return ApiBadRequestResponse.BADresponse("This rental is not editable !");
+        if(newState == "Finished" && !entityRental.IsActive)
+            return ApiBadRequestResponse.BADresponse("This rental is not active !");
+        if(newState == "Canceled" || newState == "Finished")
+        {
+            var entityCar = await _unitOfWork.Cars.GetByIdAsync(entityRental.CarId);
+            entityCar.IsAvailable = true;
+            Driver? entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)entityRental.DriverId);
+            if(entityDriver == null)
+                entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)entityDriver.SubstituteId);
+            if(entityDriver != null) entityDriver.IsAvailable = true;
+        }
+        entityRental.State = newState;
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.response(result);
     }
