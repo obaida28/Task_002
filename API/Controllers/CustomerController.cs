@@ -47,7 +47,7 @@ public class CustomerController : ControllerBase
 
         var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<CustomerDTO>>(entityResult);
-        return new ApiOkResponse(dtoResult);
+        return ApiOkResponse.OKresponse(dtoResult);
     }
     
     [HttpGet("{id}")]
@@ -55,7 +55,7 @@ public class CustomerController : ControllerBase
     {
         var getOne = await _unitOfWork.Customers.GetByIdAsync(id);
         var result = _map.Map<CustomerDTO>(getOne);
-        return new ApiOkResponse(result);
+        return ApiOkResponse.OKresponse(result);
     }
 
     [HttpPost]
@@ -72,7 +72,7 @@ public class CustomerController : ControllerBase
     public async Task<ApiResponse> UpdateAsync(Guid id, CustomerUpdateDTO customerUpdateDTO)
     {
         if (id != customerUpdateDTO.Id)
-            return new ApiBadRequestResponse("Object id is not compatible with the pass id");
+            return ApiBadRequestResponse.BADresponse("Object id is not compatible with the pass id");
         Customer customer = _map.Map<Customer>(customerUpdateDTO);
         _unitOfWork.Customers.Update(customer);
         var result = await _unitOfWork.SaveAsync();
@@ -84,7 +84,7 @@ public class CustomerController : ControllerBase
     {
         var entity = await _unitOfWork.Customers.GetByIdAsync(id);
         if(entity == null)
-            return new ApiNotFoundResponse("This id is invalid");
+            return ApiNotFoundResponse.NOTresponse("This id is invalid");
         _unitOfWork.Customers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.response(result);

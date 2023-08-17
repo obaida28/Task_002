@@ -28,7 +28,7 @@ public class DriverController : ControllerBase
     public async Task<ApiResponse> GetListAsync(DriverRequestDTO input)
     {
         if(input == null)
-            return new ApiBadRequestResponse("Requied input");
+            return ApiBadRequestResponse.BADresponse("Requied input");
 
         var query = _unitOfWork.Drivers.GetQueryable();
 
@@ -48,17 +48,17 @@ public class DriverController : ControllerBase
         var entityResult = await query.GetResultAsync
             (withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<DriverDTO>>(entityResult);
-        return new ApiOkResponse(dtoResult);
+        return ApiOkResponse.OKresponse(dtoResult);
     }
     
     [HttpGet("{id}")]
     public async Task<ApiResponse> GetAsync(Guid id) 
     {
         if (id == Guid.Empty)
-            return new ApiBadRequestResponse("Id is Required");
+            return ApiBadRequestResponse.BADresponse("Id is Required");
         var getOne = await _unitOfWork.Drivers.GetByIdAsync(id);
         var result = _map.Map<DriverDTO>(getOne);
-        return new ApiOkResponse(result);
+        return ApiOkResponse.OKresponse(result);
     }
 
     [HttpPost]
@@ -75,9 +75,9 @@ public class DriverController : ControllerBase
     public async Task<ApiResponse> UpdateAsync(Guid id, DriverUpdateDTO input)
     {
         if (id == Guid.Empty)
-            return new ApiBadRequestResponse("Id is Required");
+            return ApiBadRequestResponse.BADresponse("Id is Required");
         if (id != input.Id)
-            return new ApiBadRequestResponse("Object id is not compatible with the pass id");
+            return ApiBadRequestResponse.BADresponse("Object id is not compatible with the pass id");
         Driver driver = _map.Map<Driver>(input);
         _unitOfWork.Drivers.Update(driver);
         var result = await _unitOfWork.SaveAsync();
@@ -88,10 +88,10 @@ public class DriverController : ControllerBase
     public async Task<ApiResponse> DeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
-            return new ApiBadRequestResponse("Id is Required");
+            return ApiBadRequestResponse.BADresponse("Id is Required");
         var entity = await _unitOfWork.Drivers.GetByIdAsync(id);
         if(entity == null)
-            return new ApiNotFoundResponse("This id is invalid");
+            return ApiNotFoundResponse.NOTresponse("This id is invalid");
         _unitOfWork.Drivers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.response(result);

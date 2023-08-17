@@ -59,24 +59,24 @@ public class CarController : ControllerBase
 
         var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<CarDTO>>(entityResult);
-        return new ApiOkResponse(dtoResult);
+        return ApiOkResponse.OKresponse(dtoResult);
     }
     
     [HttpGet("{id}")]
     public async Task<ApiResponse> GetAsync(Guid id) 
     {
         if (id == Guid.Empty)
-            return new ApiBadRequestResponse("Id is Required");
+            return ApiBadRequestResponse.BADresponse("Id is Required");
         var getOne = await _unitOfWork.Cars.GetByIdAsync(id);
         var result = _map.Map<CarDTO>(getOne);
-        return new ApiOkResponse(result);
+        return ApiOkResponse.OKresponse(result);
     }
     
     [HttpPost]
     public async Task<ApiResponse> CreateAsync(CarCreateDto carCreateDto)
     {
         bool isExist = await _unitOfWork.Cars.IsExistNumberAsync(carCreateDto.Number);
-        if(isExist) return new ApiBadRequestResponse( "The car number is unique !");
+        if(isExist) return ApiBadRequestResponse.BADresponse( "The car number is unique !");
         var entity = _map.Map<Car>(carCreateDto);
         await _unitOfWork.Cars.AddAsync(entity);
         var result = await _unitOfWork.SaveAsync();
@@ -88,9 +88,9 @@ public class CarController : ControllerBase
     public async Task<ApiResponse> UpdateAsync(Guid id, CarUpdateDto carUpdateDTO)
     {
          if (id == Guid.Empty)
-             return new ApiBadRequestResponse("Id is Required");
+             return ApiBadRequestResponse.BADresponse("Id is Required");
         if (id != carUpdateDTO.Id)
-            return new ApiBadRequestResponse("Object id is not compatible with the pass id");
+            return ApiBadRequestResponse.BADresponse("Object id is not compatible with the pass id");
         Car car = _map.Map<Car>(carUpdateDTO);
         _unitOfWork.Cars.Update(car);
         var result = await _unitOfWork.SaveAsync();
@@ -101,10 +101,10 @@ public class CarController : ControllerBase
     public async Task<ApiResponse> DeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
-            return new ApiBadRequestResponse("Id is Required");
+            return ApiBadRequestResponse.BADresponse("Id is Required");
         var entity = await _unitOfWork.Cars.GetByIdAsync(id);
         if(entity == null)
-            return new ApiNotFoundResponse("This id is invalid");
+            return ApiNotFoundResponse.NOTresponse("This id is invalid");
         _unitOfWork.Cars.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.response(result);

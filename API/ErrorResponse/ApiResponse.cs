@@ -15,11 +15,10 @@ namespace API.ErrorResponse
             Message = message ?? GetDefaultMessageForStatusCode(statusCode);
         }
 
-        public static ApiResponse response (int saveResult , object showResult) => 
-            saveResult == 0 ? new ApiBadRequestResponse("Bad Request") : new ApiOkResponse(showResult);       
+        public static ApiResponse response (int saveResult , object showResult = null) => 
+            saveResult == 0 ? ApiBadRequestResponse.response("Bad Request") : ApiOkResponse.OKresponse(showResult);       
 
-        public static ApiResponse response (int saveResult) => 
-            saveResult == 0 ? new ApiBadRequestResponse("Bad Request") : new ApiOkResponse();
+        public static ApiResponse response (object showResult = null) => ApiOkResponse.OKresponse(showResult);
 
         private static string GetDefaultMessageForStatusCode(int statusCode)
         {
