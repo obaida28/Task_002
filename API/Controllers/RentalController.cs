@@ -279,8 +279,11 @@ public class RentalController : ControllerBase
         var oldCarId = entityRental.CarId;
         var oldDriverId = entityRental.DriverId;
         var startDate = entityRental.StartDate;
+        var endDate = entityRental.EndDate;
         _map.Map(input, entityRental);
-        entityRental.StartDate = startDate.Date;
+        entityRental.EndDate = entityRental.EndDate.Date.AddDays(1);
+        // entityRental.StartDate = startDate.Date;
+        //entityRental.EndDate = startDate.Date;
         if(changeCar)
         {
             var oldEntityCar = await _unitOfWork.Cars.GetByIdAsync(oldCarId);
@@ -307,6 +310,7 @@ public class RentalController : ControllerBase
         //     if(entityDriver != null) entityDriver.IsAvailable = true;
         //     entityRental.EndDate = DateTime.Now.Date;
         // }
+        _unitOfWork.Rentals.Update(entityRental);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.response(result);
     }

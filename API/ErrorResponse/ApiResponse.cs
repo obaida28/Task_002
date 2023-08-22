@@ -16,7 +16,7 @@ namespace API.ErrorResponse
         }
 
         public static ApiResponse response (int saveResult , object showResult = null) => 
-            saveResult == 0 ? ApiBadRequestResponse.response("Bad Request") : ApiOkResponse.OKresponse(showResult);       
+            saveResult == 0 ? ApiBadRequestResponse.BADresponse("Bad Request") : ApiOkResponse.OKresponse(showResult);       
 
         public static ApiResponse response (object showResult = null) => ApiOkResponse.OKresponse(showResult);
 

@@ -20,9 +20,9 @@ public class RentalUpdateDTO : IValidatableObject
         if(EndDate < StartDate) 
             yield return new ValidationResult("End Date must be greater than or equal to Start Date." ,
                  new[] { "EndDate" , "StartDate" });
-        if(EndDate > DateTime.MinValue && StartDate < DateTime.Now) 
+        if(EndDate > DateTime.MinValue && StartDate < DateTime.Now.Date)
             yield return new ValidationResult("Start Date must be a future date." , new[] { "StartDate" });
-        if(EndDate > DateTime.MinValue && EndDate < DateTime.Now) 
+        if(EndDate > DateTime.MinValue && EndDate < DateTime.Now.Date)
             yield return new ValidationResult("End Date must be a future date." , new[] { "EndDate" });
         if(Id == Guid.Empty)
              yield return new ValidationResult("Id is required", new[] { "Id" });
