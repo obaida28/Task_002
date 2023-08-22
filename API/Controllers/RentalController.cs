@@ -48,7 +48,7 @@ public class RentalController : ControllerBase
         if(input.DailyRate == 0)
             input.DailyRate = entityCar.DailyRate;
         input.StartDate = input.StartDate.Date;
-        input.EndDate = input.EndDate.Date;
+        input.EndDate = input.EndDate.Date.AddDays(1);
 
         var queryRental = _unitOfWork.Rentals.GetQueryable();
         var isNotAvailableCar = await queryRental.AnyAsync
@@ -129,7 +129,7 @@ public class RentalController : ControllerBase
                 c.Type.ToLower().Contains(input.SearchingValue) || 
                 c.Color.ToLower().Contains(input.SearchingValue) || 
                 c.Number.ToLower().Contains(input.SearchingValue) ||
-                (withDecimal && c.EngineCapacity == decimalValue) || (withInt && c.DailyRate == intValue));
+                (withDecimal && c.EngineCapacity == decimalValue) );
 
             queryCustomer = queryCustomer.Where(c => 
                 c.Name.ToLower().Contains(input.SearchingValue));
@@ -139,6 +139,7 @@ public class RentalController : ControllerBase
             
             queryRental = queryRental.Where(r => 
                 r.State.ToLower().Contains(input.SearchingValue) || 
+                (withInt && r.DailyRate == intValue) ||
                 (r.StartDate.Date >= input.SearchDate && r.EndDate.Date <= input.SearchDate));
         }
         mainQuery = mainQuery.Where
@@ -194,7 +195,7 @@ public class RentalController : ControllerBase
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
         mainQuery = mainQuery.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
 
-        var entityResult = await mainQuery.GetResultAsync(false , input.CurrentPage, input.RowsPerPage , countFilterd);
+        var entityResult = await mainQuery.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<RentalDTO>>(entityResult);
         return ApiOkResponse.OKresponse(dtoResult);
     }

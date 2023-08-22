@@ -19,9 +19,9 @@ public class RentalCreateDto : IValidatableObject
         if(EndDate < StartDate) 
             yield return new ValidationResult("End Date must be greater than or equal to Start Date." ,
                  new[] { "EndDate" , "StartDate" });
-        if(EndDate > DateTime.MinValue && StartDate < DateTime.Now) 
+        if(EndDate > DateTime.MinValue && StartDate < DateTime.Now.Date)
             yield return new ValidationResult("Start Date must be a future date." , new[] { "StartDate" });
-        if(EndDate > DateTime.MinValue && EndDate < DateTime.Now) 
+        if(EndDate > DateTime.MinValue && EndDate < DateTime.Now.Date) 
             yield return new ValidationResult("End Date must be a future date." , new[] { "EndDate" });
         if(CarId == Guid.Empty)
              yield return new ValidationResult("Car id is required", new[] { "CarId" });
