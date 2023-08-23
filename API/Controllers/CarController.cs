@@ -47,27 +47,18 @@ public class CarController : ControllerBase
         bool withSorting = input.OrderByData != null;
         if(withSorting) 
         {
-            bool IsDesc = input.OrderByData.ToLower().Contains("desc");
-            if(input.OrderByData.ToLower().Contains("type"))
-                query = !IsDesc ? query.OrderBy(c => c.Type) : query.OrderByDescending(c => c.Type);
-            else if(input.OrderByData.ToLower().Contains("color"))
-                query = !IsDesc ? query.OrderBy(c => c.Color) : query.OrderByDescending(c => c.Color);
-            else if(input.OrderByData.ToLower().Contains("enginecapacity"))
-                query = !IsDesc ? query.OrderBy(c => c.EngineCapacity) : query.OrderByDescending(c => c.EngineCapacity);
-            else if(input.OrderByData.ToLower().Contains("dailyrate"))
-                query = !IsDesc ? query.OrderBy(c => c.DailyRate) : query.OrderByDescending(c => c.DailyRate);
-            else
-                query = !IsDesc ? query.OrderBy(c => c.Number) : query.OrderByDescending(c => c.Number);
+            string dataOrder = input.OrderByData.ToLower();
+            string[] orderResult = dataOrder.Split(" ");
+            bool IsDesc = orderResult.Last() == "desc";
+            query = orderResult.First() switch
+            {
+                "type" => !IsDesc ? query.OrderBy(c => c.Type) : query.OrderByDescending(c => c.Type),
+                "color" => !IsDesc ? query.OrderBy(c => c.Color) : query.OrderByDescending(c => c.Color),
+                "enginecapacity" => !IsDesc ? query.OrderBy(c => c.EngineCapacity) : query.OrderByDescending(c => c.EngineCapacity),
+                "dailyrate" => !IsDesc ? query.OrderBy(c => c.DailyRate) : query.OrderByDescending(c => c.DailyRate),
+                _ => !IsDesc ? query.OrderBy(c => c.Number) : query.OrderByDescending(c => c.Number),
+            };
         }
-        // if(withSorting) query = input.OrderByData switch
-        //  {
-        //     "Type" => input.ASC ? query.OrderBy(c => c.Type) : query.OrderByDescending(c => c.Type),
-        //     "Color" => input.ASC ? query.OrderBy(c => c.Color) : query.OrderByDescending(c => c.Color),
-        //     "EngineCapacity" => input.ASC ? query.OrderBy(c => c.EngineCapacity) : query.OrderByDescending(c => c.EngineCapacity),
-        //     "DailyRate" => input.ASC ? query.OrderBy(c => c.DailyRate) : query.OrderByDescending(c => c.DailyRate),
-        //     _ => input.ASC ? query.OrderBy(c => c.Number) : query.OrderByDescending(c => c.Number),
-        // };
-
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
         query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
 

@@ -138,41 +138,24 @@ public class RentalController : ControllerBase
         bool withSorting = input.OrderByData != null;
         if(withSorting) 
         {
-            bool IsDesc = input.OrderByData.ToLower().Contains("desc");
-            if(input.OrderByData.ToLower().Contains("type"))
-                query = !IsDesc ? query.OrderBy(c => c.Car.Type) : query.OrderByDescending(c => c.Car.Type);
-            else if(input.OrderByData.ToLower().Contains("color"))
-                query = !IsDesc ? query.OrderBy(c => c.Car.Color) : query.OrderByDescending(c => c.Car.Color);
-            else if(input.OrderByData.ToLower().Contains("enginecapacity"))
-                query = !IsDesc ? query.OrderBy(c => c.Car.EngineCapacity) : query.OrderByDescending(c => c.Car.EngineCapacity);
-            else if(input.OrderByData.ToLower().Contains("dailyrate"))
-                query = !IsDesc ? query.OrderBy(c => c.Car.DailyRate) : query.OrderByDescending(c => c.Car.DailyRate);
-            else if(input.OrderByData.ToLower().Contains("number"))
-                query = !IsDesc ? query.OrderBy(c => c.Car.Number) : query.OrderByDescending(c => c.Car.Number);
-            else if(input.OrderByData.ToLower().Contains("customername"))
-                query = !IsDesc ? query.OrderBy(c => c.Customer.Name) : query.OrderByDescending(c => c.Customer.Name);
-            else if(input.OrderByData.ToLower().Contains("drivername"))
-                query = !IsDesc ? query.OrderBy(c => c.Driver.Name) : query.OrderByDescending(c => c.Driver.Name);
-            else if(input.OrderByData.ToLower().Contains("state"))
-                query = !IsDesc ? query.OrderBy(c => c.State) : query.OrderByDescending(c => c.State);
-            else if(input.OrderByData.ToLower().Contains("startdate"))
-                query = !IsDesc ? query.OrderBy(c => c.StartDate) : query.OrderByDescending(c => c.StartDate);
-            else if(input.OrderByData.ToLower().Contains("enddate"))
-                query = !IsDesc ? query.OrderBy(c => c.EndDate) : query.OrderByDescending(c => c.EndDate);
-            else
-                query = !IsDesc ? query.OrderBy(c => c.Car.Number) : query.OrderByDescending(c => c.Car.Number);
-                
-            // query = input.OrderByData.Contains switch
-            // {
-            //     "Type" => input.ASC ? query.OrderBy(c => c.Car.Type) : query.OrderByDescending(c => c.Car.Type),
-            //     "Color" => input.ASC ? query.OrderBy(c => c.Car.Color) : query.OrderByDescending(c => c.Car.Color),
-            //     "EngineCapacity" => input.ASC ? query.OrderBy(c => c.Car.EngineCapacity) : query.OrderByDescending(c => c.Car.EngineCapacity),
-            //     "DailyRate" => input.ASC ? query.OrderBy(c => c.DailyRate) : query.OrderByDescending(c => c.DailyRate),
-            //     "CarNumber" => input.ASC ? query.OrderBy(c => c.Car.Number) : query.OrderByDescending(c => c.Car.Number),
-            //     "CustomerName" => input.ASC ? query.OrderBy(c => c.Customer.Name) : query.OrderByDescending(c => c.Customer.Name),
-            //     "DriverName" => input.ASC ? query.OrderBy(c => c.Driver.Name) : query.OrderByDescending(c => c.Driver.Name),
-            //     _ => input.ASC ? query.OrderBy(c => c.Car.Number) : query.OrderByDescending(c => c.Car.Number),
-            // };
+            string dataOrder = input.OrderByData.ToLower();
+            string[] orderResult = dataOrder.Split(" ");
+            // int indexSpace = dataOrder.IndexOf(" ");// string columnNameOrderBy = dataOrder[..indexSpace];// bool IsDesc = dataOrder[(indexSpace + 1)..] == "desc";                
+            bool IsDesc = orderResult.Last() == "desc";
+            query = orderResult.First() switch
+            {
+                "type" => !IsDesc ? query.OrderBy(r => r.Car.Type) : query.OrderByDescending(r => r.Car.Type),
+                "color" => !IsDesc ? query.OrderBy(r => r.Car.Color) : query.OrderByDescending(r => r.Car.Color),
+                "engineeapacity" => !IsDesc ? query.OrderBy(r => r.Car.EngineCapacity) : query.OrderByDescending(r => r.Car.EngineCapacity),
+                //"carnumber" => !IsDesc ? query.OrderBy(r => r.Car.Number) : query.OrderByDescending(r => r.Car.Number),
+                "customercame" => !IsDesc ? query.OrderBy(r => r.Customer.Name) : query.OrderByDescending(r => r.Customer.Name),
+                "drivername" => !IsDesc ? query.OrderBy(r => r.Driver.Name) : query.OrderByDescending(r => r.Driver.Name),
+                "dailyrate" => !IsDesc ? query.OrderBy(r => r.DailyRate) : query.OrderByDescending(r => r.DailyRate),
+                "state" => !IsDesc ? query.OrderBy(r => r.State) : query.OrderByDescending(r => r.State),
+                "startdate" => !IsDesc ? query.OrderBy(r => r.StartDate) : query.OrderByDescending(r => r.StartDate),
+                "enddate" => !IsDesc ? query.OrderBy(r => r.EndDate) : query.OrderByDescending(r => r.EndDate),
+                _ => !IsDesc ? query.OrderBy(r => r.Car.Number) : query.OrderByDescending(r => r.Car.Number),
+            };
         }
 
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;

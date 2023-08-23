@@ -33,16 +33,17 @@ public class DriverController : ControllerBase
         var query = _unitOfWork.Drivers.GetQueryable();
 
         bool withSearching = input.SearchingValue != null;
-        if(withSearching) query = query.Where(c => 
-            c.Name.ToLower().Contains(input.SearchingValue));
+        if(withSearching) query = query.Where(d => d.Name.ToLower().Contains(input.SearchingValue));
 
         int countFilterd = await query.CountAsync();
 
         bool withSorting = input.OrderByData != null;
         if(withSorting) 
         {
-            bool IsDesc = input.OrderByData.ToLower().Contains("desc");
-            query = !IsDesc ? query.OrderBy(c => c.Name) : query.OrderByDescending(c => c.Name);
+            string dataOrder = input.OrderByData.ToLower();
+            string[] orderResult = dataOrder.Split(" ");
+            bool IsDesc = orderResult.Last() == "desc";
+            query = !IsDesc ? query.OrderBy(d => d.Name) : query.OrderByDescending(d => d.Name);
         }
         
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;

@@ -41,7 +41,9 @@ public class CustomerController : ControllerBase
         bool withSorting = input.OrderByData != null;
         if(withSorting) 
         {
-            bool IsDesc = input.OrderByData.ToLower().Contains("desc");
+            string dataOrder = input.OrderByData.ToLower();
+            string[] orderResult = dataOrder.Split(" ");
+            bool IsDesc = orderResult.Last() == "desc";
             query = !IsDesc ? query.OrderBy(c => c.Name) : query.OrderByDescending(c => c.Name);
         }
         
