@@ -12,16 +12,18 @@ public class RentalCreateDto : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if(EndDate == DateTime.MinValue) 
+        bool HasEndDate = EndDate > DateTime.MinValue;
+        bool HasStartDate = StartDate > DateTime.MinValue;
+        if(!HasEndDate) 
             yield return new ValidationResult("End Date is required." , new[] { "EndDate" });
-        if(StartDate == DateTime.MinValue) 
+        if(!HasStartDate) 
             yield return new ValidationResult("Start Date is required.." , new[] { "StartDate" });
-        if(EndDate < StartDate) 
+        if(HasEndDate && EndDate < StartDate) 
             yield return new ValidationResult("End Date must be greater than or equal to Start Date." ,
                  new[] { "EndDate" , "StartDate" });
-        if(EndDate > DateTime.MinValue && StartDate < DateTime.Now.Date)
+        if(HasStartDate && StartDate < DateTime.Now.Date)
             yield return new ValidationResult("Start Date must be a future date." , new[] { "StartDate" });
-        if(EndDate > DateTime.MinValue && EndDate < DateTime.Now.Date) 
+        if(HasEndDate && EndDate < DateTime.Now.Date) 
             yield return new ValidationResult("End Date must be a future date." , new[] { "EndDate" });
         if(CarId == Guid.Empty)
              yield return new ValidationResult("Car id is required", new[] { "CarId" });
