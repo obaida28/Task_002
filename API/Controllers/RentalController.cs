@@ -114,88 +114,71 @@ public class RentalController : ControllerBase
     [HttpGet(template: "GetListAsync")]
     public async Task<ApiResponse> GetListAsync(RentalRequestDTO input) 
     {
-        var queryCar = _unitOfWork.Cars.GetQueryable();
-        var queryCustomer = _unitOfWork.Customers.GetQueryable();
-        var queryDriver = _unitOfWork.Drivers.GetQueryable();
-        var queryRental = _unitOfWork.Rentals.GetQueryable();
-        var mainQuery = queryRental;
-
+       IQueryable<Rental> query = _unitOfWork.Rentals.GetQueryable()
+            .Include(r => r.Car).Include(r => r.Customer).Include(r => r.Driver);
         bool withSearching = input.SearchingValue != null;
         if(withSearching) 
         {
             bool withDecimal = decimal.TryParse(input.SearchingValue, out decimal decimalValue);
             bool withInt = int.TryParse(input.SearchingValue, out int intValue);
-             queryCar = queryCar.Where(c => 
-                c.Type.ToLower().Contains(input.SearchingValue) || 
-                c.Color.ToLower().Contains(input.SearchingValue) || 
-                c.Number.ToLower().Contains(input.SearchingValue) ||
-                (withDecimal && c.EngineCapacity == decimalValue) );
-
-            queryCustomer = queryCustomer.Where(c => 
-                c.Name.ToLower().Contains(input.SearchingValue));
-
-            queryDriver = queryDriver.Where(c => 
-                c.Name.ToLower().Contains(input.SearchingValue));
-            
-            queryRental = queryRental.Where(r => 
+             query = query.Where(r => 
+                r.Car.Type.ToLower().Contains(input.SearchingValue) || 
+                r.Car.Color.ToLower().Contains(input.SearchingValue) || 
+                r.Car.Number.ToLower().Contains(input.SearchingValue) ||
+                (withDecimal && r.Car.EngineCapacity == decimalValue) ||
+                r.Customer.Name.ToLower().Contains(input.SearchingValue) ||
+                r.Driver.Name.ToLower().Contains(input.SearchingValue) ||
                 r.State.ToLower().Contains(input.SearchingValue) || 
                 (withInt && r.DailyRate == intValue) ||
                 (r.StartDate.Date >= input.SearchDate && r.EndDate.Date <= input.SearchDate));
         }
-        mainQuery = mainQuery.Where
-            (r => 
-                queryRental.Any(rr => rr.Id == r.Id) ||
-                queryCar.Any(c => c.Id == r.CarId) ||
-                queryCustomer.Any(c => c.Id == r.CustomerId) || 
-                (r.DriverId.HasValue &&  queryDriver.Any(d => d.Id == r.DriverId.Value))
-            );
 
-        int countFilterd = await mainQuery.CountAsync();
+        int countFilterd = await query.CountAsync();
 
         bool withSorting = input.OrderByData != null;
         if(withSorting) 
         {
             bool IsDesc = input.OrderByData.ToLower().Contains("desc");
             if(input.OrderByData.ToLower().Contains("type"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.Car.Type) : mainQuery.OrderByDescending(c => c.Car.Type);
+                query = !IsDesc ? query.OrderBy(c => c.Car.Type) : query.OrderByDescending(c => c.Car.Type);
             else if(input.OrderByData.ToLower().Contains("color"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.Car.Color) : mainQuery.OrderByDescending(c => c.Car.Color);
+                query = !IsDesc ? query.OrderBy(c => c.Car.Color) : query.OrderByDescending(c => c.Car.Color);
             else if(input.OrderByData.ToLower().Contains("enginecapacity"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.Car.EngineCapacity) : mainQuery.OrderByDescending(c => c.Car.EngineCapacity);
+                query = !IsDesc ? query.OrderBy(c => c.Car.EngineCapacity) : query.OrderByDescending(c => c.Car.EngineCapacity);
             else if(input.OrderByData.ToLower().Contains("dailyrate"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.Car.DailyRate) : mainQuery.OrderByDescending(c => c.Car.DailyRate);
+                query = !IsDesc ? query.OrderBy(c => c.Car.DailyRate) : query.OrderByDescending(c => c.Car.DailyRate);
             else if(input.OrderByData.ToLower().Contains("number"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.Car.Number) : mainQuery.OrderByDescending(c => c.Car.Number);
+                query = !IsDesc ? query.OrderBy(c => c.Car.Number) : query.OrderByDescending(c => c.Car.Number);
             else if(input.OrderByData.ToLower().Contains("customername"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.Customer.Name) : mainQuery.OrderByDescending(c => c.Customer.Name);
+                query = !IsDesc ? query.OrderBy(c => c.Customer.Name) : query.OrderByDescending(c => c.Customer.Name);
             else if(input.OrderByData.ToLower().Contains("drivername"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.Driver.Name) : mainQuery.OrderByDescending(c => c.Driver.Name);
+                query = !IsDesc ? query.OrderBy(c => c.Driver.Name) : query.OrderByDescending(c => c.Driver.Name);
             else if(input.OrderByData.ToLower().Contains("state"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.State) : mainQuery.OrderByDescending(c => c.State);
+                query = !IsDesc ? query.OrderBy(c => c.State) : query.OrderByDescending(c => c.State);
             else if(input.OrderByData.ToLower().Contains("startdate"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.StartDate) : mainQuery.OrderByDescending(c => c.StartDate);
+                query = !IsDesc ? query.OrderBy(c => c.StartDate) : query.OrderByDescending(c => c.StartDate);
             else if(input.OrderByData.ToLower().Contains("enddate"))
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.EndDate) : mainQuery.OrderByDescending(c => c.EndDate);
+                query = !IsDesc ? query.OrderBy(c => c.EndDate) : query.OrderByDescending(c => c.EndDate);
             else
-                mainQuery = !IsDesc ? mainQuery.OrderBy(c => c.Car.Number) : mainQuery.OrderByDescending(c => c.Car.Number);
+                query = !IsDesc ? query.OrderBy(c => c.Car.Number) : query.OrderByDescending(c => c.Car.Number);
                 
-            // mainQuery = input.OrderByData.Contains switch
+            // query = input.OrderByData.Contains switch
             // {
-            //     "Type" => input.ASC ? mainQuery.OrderBy(c => c.Car.Type) : mainQuery.OrderByDescending(c => c.Car.Type),
-            //     "Color" => input.ASC ? mainQuery.OrderBy(c => c.Car.Color) : mainQuery.OrderByDescending(c => c.Car.Color),
-            //     "EngineCapacity" => input.ASC ? mainQuery.OrderBy(c => c.Car.EngineCapacity) : mainQuery.OrderByDescending(c => c.Car.EngineCapacity),
-            //     "DailyRate" => input.ASC ? mainQuery.OrderBy(c => c.DailyRate) : mainQuery.OrderByDescending(c => c.DailyRate),
-            //     "CarNumber" => input.ASC ? mainQuery.OrderBy(c => c.Car.Number) : mainQuery.OrderByDescending(c => c.Car.Number),
-            //     "CustomerName" => input.ASC ? mainQuery.OrderBy(c => c.Customer.Name) : mainQuery.OrderByDescending(c => c.Customer.Name),
-            //     "DriverName" => input.ASC ? mainQuery.OrderBy(c => c.Driver.Name) : mainQuery.OrderByDescending(c => c.Driver.Name),
-            //     _ => input.ASC ? mainQuery.OrderBy(c => c.Car.Number) : mainQuery.OrderByDescending(c => c.Car.Number),
+            //     "Type" => input.ASC ? query.OrderBy(c => c.Car.Type) : query.OrderByDescending(c => c.Car.Type),
+            //     "Color" => input.ASC ? query.OrderBy(c => c.Car.Color) : query.OrderByDescending(c => c.Car.Color),
+            //     "EngineCapacity" => input.ASC ? query.OrderBy(c => c.Car.EngineCapacity) : query.OrderByDescending(c => c.Car.EngineCapacity),
+            //     "DailyRate" => input.ASC ? query.OrderBy(c => c.DailyRate) : query.OrderByDescending(c => c.DailyRate),
+            //     "CarNumber" => input.ASC ? query.OrderBy(c => c.Car.Number) : query.OrderByDescending(c => c.Car.Number),
+            //     "CustomerName" => input.ASC ? query.OrderBy(c => c.Customer.Name) : query.OrderByDescending(c => c.Customer.Name),
+            //     "DriverName" => input.ASC ? query.OrderBy(c => c.Driver.Name) : query.OrderByDescending(c => c.Driver.Name),
+            //     _ => input.ASC ? query.OrderBy(c => c.Car.Number) : query.OrderByDescending(c => c.Car.Number),
             // };
         }
 
         bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
-        mainQuery = mainQuery.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
+        query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
 
-        var entityResult = await mainQuery.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
+        var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<RentalDTO>>(entityResult);
         return ApiOkResponse.OKresponse(dtoResult);
     }
