@@ -32,13 +32,12 @@ public class CustomerController : ControllerBase
         
         var query = _unitOfWork.Customers.GetQueryable();
 
-        bool withSearching = input.SearchingValue != null;
-        if(withSearching) query = query.Where(c => 
-            c.Name.ToLower().Contains(input.SearchingValue));
+        bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
+        if(withSearching) query = query.Where(c => c.Name.ToLower().Contains(input.SearchingValue));
         
         int countFilterd = await query.CountAsync();
 
-        bool withSorting = input.OrderByData != null;
+        bool withSorting = !string.IsNullOrEmpty(input.OrderByData);
         if(withSorting) 
         {
             string dataOrder = input.OrderByData.ToLower();

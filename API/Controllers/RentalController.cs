@@ -116,7 +116,7 @@ public class RentalController : ControllerBase
     {
        IQueryable<Rental> query = _unitOfWork.Rentals.GetQueryable()
             .Include(r => r.Car).Include(r => r.Customer).Include(r => r.Driver);
-        bool withSearching = input.SearchingValue != null;
+        bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
         if(withSearching) 
         {
             bool withDecimal = decimal.TryParse(input.SearchingValue, out decimal decimalValue);
@@ -135,7 +135,7 @@ public class RentalController : ControllerBase
 
         int countFilterd = await query.CountAsync();
 
-        bool withSorting = input.OrderByData != null;
+        bool withSorting = !string.IsNullOrEmpty(input.OrderByData);
         if(withSorting) 
         {
             string dataOrder = input.OrderByData.ToLower();

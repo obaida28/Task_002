@@ -32,12 +32,12 @@ public class DriverController : ControllerBase
 
         var query = _unitOfWork.Drivers.GetQueryable();
 
-        bool withSearching = input.SearchingValue != null;
+        bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
         if(withSearching) query = query.Where(d => d.Name.ToLower().Contains(input.SearchingValue));
 
         int countFilterd = await query.CountAsync();
 
-        bool withSorting = input.OrderByData != null;
+        bool withSorting = !string.IsNullOrEmpty(input.OrderByData);
         if(withSorting) 
         {
             string dataOrder = input.OrderByData.ToLower();

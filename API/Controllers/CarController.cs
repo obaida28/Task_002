@@ -30,7 +30,7 @@ public class CarController : ControllerBase
     {
         var query = _unitOfWork.Cars.GetQueryable();
 
-        bool withSearching = input.SearchingValue != null;
+        bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
         if(withSearching) 
         {
             bool withDecimal = decimal.TryParse(input.SearchingValue, out decimal decimalValue);
@@ -44,7 +44,7 @@ public class CarController : ControllerBase
            
         int countFilterd = await query.CountAsync();
 
-        bool withSorting = input.OrderByData != null;
+        bool withSorting = !string.IsNullOrEmpty(input.OrderByData);
         if(withSorting) 
         {
             string dataOrder = input.OrderByData.ToLower();
