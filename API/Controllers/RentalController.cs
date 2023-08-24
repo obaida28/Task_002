@@ -55,8 +55,8 @@ public class RentalController : ControllerBase
         var isNotAvailableDriver = await _query.AnyAsync
         (r => (r.State == "Created" || r.State == "Active") && r.DriverId == driverId && 
             (
-                (startDate.Date >= r.StartDate && startDate.Date <= r.EndDate) ||
-                (EndDate.Date >= r.StartDate && EndDate.Date <= r.EndDate)
+                (startDate.Date >= r.StartDate && startDate.Date < r.EndDate) ||
+                (EndDate.Date > r.StartDate && EndDate.Date <= r.EndDate)
             )
         );
         return !isNotAvailableDriver; 
@@ -75,8 +75,8 @@ public class RentalController : ControllerBase
         var isNotAvailableCar = await _query.AnyAsync
             (r => (r.State == "Created" || r.State == "Active") && r.CarId == carId &&
                 (
-                    (startDate.Date >= r.StartDate && startDate.Date <= r.EndDate) ||
-                    (EndDate.Date >= r.StartDate && EndDate.Date <= r.EndDate)
+                    (startDate.Date >= r.StartDate && startDate.Date < r.EndDate) ||
+                    (EndDate.Date > r.StartDate && EndDate.Date <= r.EndDate)
                 )
             );
         if(isNotAvailableCar)
@@ -88,10 +88,13 @@ public class RentalController : ControllerBase
     public async Task<ApiResponse> CreateAsync(RentalCreateDto input)
     {
         var queryRental = _unitOfWork.Rentals.GetQueryable();
+        input.StartDate = input.StartDate.Date;
+        input.EndDate = input.EndDate.Date.AddDays(1);
         //Car Check
         var carCheck = await CheckCar(queryRental,input.CarId,input.StartDate,input.EndDate);
         if(carCheck.StatusCode != 200) return carCheck;
         Car entityCar = (Car)(carCheck as ApiOkResponse).Result;
+        if(input.DailyRate == 0) input.DailyRate = entityCar.DailyRate;
         //Customer Check
         var entityCustomer = await _unitOfWork.Customers.GetByIdAsync(input.CustomerId);
         if(entityCustomer == null)
@@ -107,10 +110,6 @@ public class RentalController : ControllerBase
             input.DriverId = entityDriver.Id;
         }  
         //End Check
-        if(input.DailyRate == 0) input.DailyRate = entityCar.DailyRate;
-        input.StartDate = input.StartDate.Date;
-        input.EndDate = input.EndDate.Date.AddDays(1);
-
         var entity = _map.Map<Rental>(input);
         //TODO : Begin Transaction
         await _unitOfWork.Rentals.AddAsync(entity);
