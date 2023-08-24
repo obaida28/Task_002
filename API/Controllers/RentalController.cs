@@ -117,20 +117,17 @@ public class RentalController : ControllerBase
         {
             entityCar.IsAvailable = false;
             entity.State = "Active";
+            if(IsDriverPassed) entityDriver.IsAvailable = false;
+            _unitOfWork.Cars.Update(entityCar);
+            _unitOfWork.Drivers.Update(entityDriver);
         }
-        _unitOfWork.Cars.Update(entityCar);//Question
-        if(IsDriverPassed && entity.IsActive)
-        {
-            entityDriver.IsAvailable = false;
-            _unitOfWork.Drivers.Update(entityDriver);//Question
-        }
-        var result = await _unitOfWork.SaveAsync();
+        var saveResult = await _unitOfWork.SaveAsync();
         //TODO : End Transaction
         entity.Car = entityCar;
         entity.Customer = entityCustomer;
         entity.Driver = entityDriver;
         var res = _map.Map<RentalDTO>(entity);
-        return ApiResponse.response(result , res);
+        return ApiResponse.response(saveResult , res);
     }
 
     [HttpGet(template: "GetListAsync")]
@@ -195,7 +192,8 @@ public class RentalController : ControllerBase
             return ApiBadRequestResponse.BADresponse("Id is Required");
         if (id != input.Id)
             return ApiBadRequestResponse.BADresponse("Object id is not compatible with the pass id");
-        
+        input.StartDate = input.StartDate.Date;
+        input.EndDate = input.EndDate.Date.AddDays(1);
         var entityRental = await _unitOfWork.Rentals.GetByIdAsync(id);
         var queryRental = _unitOfWork.Rentals.GetQueryable();
 
@@ -205,23 +203,13 @@ public class RentalController : ControllerBase
         bool changeCustomer = entityRental.CustomerId != input.CustomerId;
         bool changeDriver = entityRental.DriverId != input.DriverId;
 
-        var entityCar = await _unitOfWork.Cars.GetByIdAsync(input.CarId);
+        Car? entityCar = null;     
         if(changeCar)
         {
-            if(entityCar == null)
-                return ApiNotFoundResponse.NOTresponse("This car id is invalid");
-            var isNotAvailableCar = await queryRental.AnyAsync
-            (r => (r.State == "Created" || r.State == "Active") &&  r.CarId == input.CarId &&
-                (
-                    (input.StartDate.Date >= r.StartDate && input.StartDate.Date <= r.EndDate) ||
-                    (input.EndDate.Date >= r.StartDate && input.EndDate.Date <= r.EndDate)
-                )
-            );
-        if(isNotAvailableCar)
-            return ApiBadRequestResponse.BADresponse("This car is not available between this dates !");
-
-            // if(!entityCar.IsAvailable)
-            //     return ApiBadRequestResponse.BADresponse("This car is not available !");
+            //Car Check
+            var carCheck = await CheckCar(queryRental,input.CarId,input.StartDate,input.EndDate);
+            if(carCheck.StatusCode != 200) return carCheck;
+            entityCar = (Car)(carCheck as ApiOkResponse).Result;
         }
         
         if(changeCustomer)
@@ -231,66 +219,38 @@ public class RentalController : ControllerBase
                 return ApiNotFoundResponse.NOTresponse("This customer id is invalid");
         }
 
-        Driver? entityDriver = null;
-        if(input.DriverId != null && changeDriver)
+        bool IsDriverPassed = input.DriverId != null;
+        Driver? entityDriver = null;     
+        if(IsDriverPassed && changeDriver)
         {
-            entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)input.DriverId);
-            if(entityDriver == null)
-                return ApiNotFoundResponse.NOTresponse("This driver id is invalid");
-   
-            var isNotAvailableDriver = await queryRental.AnyAsync
-            (r => (r.State == "Created" || r.State == "Active") &&  r.DriverId == input.DriverId && 
-                (
-                    (input.StartDate.Date >= r.StartDate && input.StartDate.Date <= r.EndDate) ||
-                    (input.EndDate.Date >= r.StartDate && input.EndDate.Date <= r.EndDate)
-                )
-            );
-
-            if(isNotAvailableDriver)
-            {
-                if(entityDriver.SubstituteId == null)
-                    return ApiBadRequestResponse.BADresponse("This driver is not available between this dates !");
-                entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)entityDriver.SubstituteId);
-                var isNotAvailableSubstituteDriver = await queryRental.AnyAsync
-                    (r =>  r.DriverId == entityDriver.SubstituteId && 
-                        (
-                            (input.StartDate.Date >= r.StartDate && input.StartDate.Date <= r.EndDate) ||
-                            (input.EndDate.Date >= r.StartDate && input.EndDate.Date <= r.EndDate)
-                        )
-                    );
-                if(isNotAvailableSubstituteDriver)
-                    return ApiBadRequestResponse.BADresponse("This driver is not available between this dates !");
-                else
-                    input.DriverId = entityDriver.Id;   
-            }
+            var driverCheck = await CheckDriver(queryRental,(Guid)input.DriverId,input.StartDate,input.EndDate);
+            if(driverCheck.StatusCode != 200) return driverCheck;
+            entityDriver = (Driver)((ApiOkResponse)driverCheck).Result;
+            input.DriverId = entityDriver.Id;
         }
         var oldCarId = entityRental.CarId;
         var oldDriverId = entityRental.DriverId;
-        var startDate = entityRental.StartDate;
-        var endDate = entityRental.EndDate;
         _map.Map(input, entityRental);
         entityRental.EndDate = entityRental.EndDate.Date.AddDays(1);
         // entityRental.StartDate = startDate.Date;
         //entityRental.EndDate = startDate.Date;
-        if(changeCar)
+        if(entityRental.IsActive)
         {
-            var oldEntityCar = await _unitOfWork.Cars.GetByIdAsync(oldCarId);
-            if(entityRental.IsActive)
+            if(changeCar)
             {
+                var oldEntityCar = await _unitOfWork.Cars.GetByIdAsync(oldCarId);
                 oldEntityCar.IsAvailable = true;
                 entityCar.IsAvailable = false;
             }
-        }
-        if(changeDriver)
-        {
-            if(oldDriverId != null)
+            entityRental.State = "Active";
+            if(IsDriverPassed && changeDriver) 
             {
                 var oldEntityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)oldDriverId);
-                if(entityRental.IsActive)
-                    oldEntityDriver.IsAvailable = true;
-            }
-            if(entityDriver != null && entityRental.IsActive)
+                oldEntityDriver.IsAvailable = true;
                 entityDriver.IsAvailable = false;
+            }
+            _unitOfWork.Cars.Update(entityCar);
+            _unitOfWork.Drivers.Update(entityDriver);
         }
         // if(input.FinishRental)
         // {
