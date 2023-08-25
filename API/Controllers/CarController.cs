@@ -78,11 +78,11 @@ public class CarController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ApiResponse> CreateAsync(CarCreateDto carCreateDto)
+    public async Task<ApiResponse> CreateAsync(CarCreateDto input)
     {
-        bool isExist = await _unitOfWork.Cars.IsExistNumberAsync(carCreateDto.Number);
+        bool isExist = await _unitOfWork.Cars.IsExistNumberAsync(input.Number);
         if(isExist) return ApiBadRequestResponse.BADresponse( "The car number is unique !");
-        var entity = _map.Map<Car>(carCreateDto);
+        var entity = _map.Map<Car>(input);
         await _unitOfWork.Cars.AddAsync(entity);
         var result = await _unitOfWork.SaveAsync();
         var dto = _map.Map<CarDTO>(entity);
@@ -90,13 +90,13 @@ public class CarController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ApiResponse> UpdateAsync(Guid id, CarUpdateDto carUpdateDTO)
+    public async Task<ApiResponse> UpdateAsync(Guid id, CarUpdateDto input)
     {
-         if (id == Guid.Empty)
+        if (id == Guid.Empty)
              return ApiBadRequestResponse.BADresponse("Id is Required");
-        if (id != carUpdateDTO.Id)
+        if (id != input.Id)
             return ApiBadRequestResponse.BADresponse("Object id is not compatible with the pass id");
-        Car car = _map.Map<Car>(carUpdateDTO);
+        Car car = _map.Map<Car>(input);
         _unitOfWork.Cars.Update(car);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.response(result);
