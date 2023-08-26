@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace API.ErrorResponse
+﻿namespace API.ErrorResponse
 {
     public class ApiResponse
     {

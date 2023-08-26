@@ -1,8 +1,4 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using Core.Entites;
 namespace API.DTOs;
-
 public class RequestDTO<T> where T : BaseEntity 
 {
     [Range(0, int.MaxValue, ErrorMessage = "Current page must be a non-negative value.")]

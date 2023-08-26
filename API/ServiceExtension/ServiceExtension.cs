@@ -1,8 +1,3 @@
-using Core.Interfaces;
-using Infrastructure.Data;
-using Infrastructure.Data.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
-
 namespace API.ServiceExtension;
 public static class ServiceExtension
 {

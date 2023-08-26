@@ -1,6 +1,3 @@
-using Core.Entites;
-using Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Data;
 public class CarRepository : GenericRepository<Car> , ICarRepository
 {

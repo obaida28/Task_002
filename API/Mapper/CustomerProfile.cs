@@ -1,8 +1,3 @@
-using API.DTOs;
-using API.Helpers;
-using AutoMapper;
-using Core.Entites;
-
 namespace API.Mapper;
 public class CustomerProfile : Profile
 {

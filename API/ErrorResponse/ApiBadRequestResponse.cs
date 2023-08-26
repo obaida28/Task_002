@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-
-namespace API.ErrorResponse
+﻿namespace API.ErrorResponse
 {
     public class ApiBadRequestResponse : ApiResponse
     {

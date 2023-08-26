@@ -1,7 +1,3 @@
-// using System.Linq.Dynamic.Core;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-
 namespace API.Helpers;
 public static class QueryableExtensions
 {

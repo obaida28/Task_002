@@ -1,6 +1,4 @@
-﻿using API.ErrorResponse;
-using Newtonsoft.Json;
-
+﻿
 namespace API.Middlewares
 {
     public class ErrorWrappingMiddleware

@@ -1,16 +1,3 @@
-using API.DTOs;
-using API.Helpers;
-using AutoMapper;
-using Core.Entites;
-using Core.Interfaces;
-using API.ActionFilter;
-using API.ErrorResponse;
-using Infrastructure.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-// using System.Linq.Dynamic.Core;
-using System.Net;
-
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]

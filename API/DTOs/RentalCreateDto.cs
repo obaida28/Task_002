@@ -1,7 +1,3 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using API.Validation;
-
 namespace API.DTOs;
 public class RentalCreateDto //: IValidatableObject
 {

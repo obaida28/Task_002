@@ -1,16 +1,10 @@
-﻿using API.ErrorResponse;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-
-namespace API.ActionFilter
+﻿namespace API.ActionFilter;
+public class ApiValidationFilterAttribute : ActionFilterAttribute
 {
-    public class ApiValidationFilterAttribute : ActionFilterAttribute
+    public override void OnActionExecuting(ActionExecutingContext context)
     {
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            if (!context.ModelState.IsValid)
-                context.Result = new BadRequestObjectResult(ApiBadRequestResponse.BADresponse(context.ModelState));
-            base.OnActionExecuting(context);
-        }
+        if (!context.ModelState.IsValid)
+            context.Result = new BadRequestObjectResult(ApiBadRequestResponse.BADresponse(context.ModelState));
+        base.OnActionExecuting(context);
     }
 }

@@ -1,5 +1,3 @@
-using Core.Interfaces;
-
 namespace Infrastructure.Data.UnitOfWork;
 public class UnitOfWork : IUnitOfWork
 {

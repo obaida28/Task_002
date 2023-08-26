@@ -1,12 +1,3 @@
-using System.Text.Json.Serialization;
-using Core.Interfaces;
-using Infrastructure.Data;
-using API.ServiceExtension;
-using Microsoft.AspNetCore.Mvc;
-// using Infrastructure.Services;
-using Microsoft.EntityFrameworkCore;
-using API.Middlewares;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
