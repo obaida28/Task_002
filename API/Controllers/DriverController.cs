@@ -8,12 +8,12 @@ using System.Linq.Dynamic.Core;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using API.ErrorResponse;
-using API.CustomFilters;
+using API.ActionFilter;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[ApiValidationFilterAttribute]
+[ApiValidationFilter]
 public class DriverController : ControllerBase 
 {
     private readonly IUnitOfWork _unitOfWork;

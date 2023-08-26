@@ -3,7 +3,7 @@ using API.Helpers;
 using AutoMapper;
 using Core.Entites;
 using Core.Interfaces;
-using API.CustomFilters;
+using API.ActionFilter;
 using API.ErrorResponse;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ using System.Net;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[ApiValidationFilterAttribute]
+[ApiValidationFilter]
 public class CarController : ControllerBase 
 {
     private readonly IUnitOfWork _unitOfWork;

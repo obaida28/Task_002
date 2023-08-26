@@ -1,10 +1,11 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using API.Validation;
 
 namespace API.DTOs;
 public class CarUpdateDto
 {
-    [Required(ErrorMessage = "Id is required.")]
+    [GuidNotEmpty(ErrorMessage = "Id must have a non-default value.")]
     public Guid Id { get; set; }
     [Required(ErrorMessage = "Number is required.")]
     public string Number { get; set; }

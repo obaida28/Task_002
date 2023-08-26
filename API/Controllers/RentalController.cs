@@ -1,4 +1,4 @@
-using API.CustomFilters;
+using API.ActionFilter;
 using API.DTOs;
 using API.ErrorResponse;
 using API.Helpers;
@@ -16,7 +16,7 @@ using System.Net;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[ApiValidationFilterAttribute]
+[ApiValidationFilter]
 public class RentalController : ControllerBase 
 {
     private readonly IUnitOfWork _unitOfWork;
