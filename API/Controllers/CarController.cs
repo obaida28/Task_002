@@ -51,54 +51,54 @@ public class CarController : ControllerBase
 
         var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<CarDTO>>(entityResult);
-        return ApiOkResponse.OKresponse(dtoResult);
+        return ApiResponse.OK(dtoResult);
     }
     
     [HttpGet("{id}")]
     public async Task<ApiResponse> GetAsync(Guid id) 
     {
         if (id == Guid.Empty)
-            return ApiBadRequestResponse.BADresponse("Id is Required");
+            return ApiResponse.BAD("Id is Required");
         var getOne = await _unitOfWork.Cars.GetByIdAsync(id);
         var result = _map.Map<CarDTO>(getOne);
-        return ApiOkResponse.OKresponse(result);
+        return ApiResponse.OK(result);
     }
     
     [HttpPost]
     public async Task<ApiResponse> CreateAsync(CarCreateDto input)
     {
         bool isExist = await _unitOfWork.Cars.IsExistNumberAsync(input.Number);
-        if(isExist) return ApiBadRequestResponse.BADresponse( "The car number is unique !");
+        if(isExist) return ApiResponse.BAD( "The car number is unique !");
         var entity = _map.Map<Car>(input);
         await _unitOfWork.Cars.AddAsync(entity);
         var result = await _unitOfWork.SaveAsync();
         var dto = _map.Map<CarDTO>(entity);
-        return ApiResponse.response(result , dto);
+        return ApiResponse.Response(result , dto);
     }
 
     [HttpPut("{id}")]
     public async Task<ApiResponse> UpdateAsync(Guid id, CarUpdateDto input)
     {
         if (id == Guid.Empty)
-             return ApiBadRequestResponse.BADresponse("Id is Required");
+             return ApiResponse.BAD("Id is Required");
         if (id != input.Id)
-            return ApiBadRequestResponse.BADresponse("Object id is not compatible with the pass id");
+            return ApiResponse.BAD("Object id is not compatible with the pass id");
         Car car = _map.Map<Car>(input);
         _unitOfWork.Cars.Update(car);
         var result = await _unitOfWork.SaveAsync();
-        return ApiResponse.response(result);
+        return ApiResponse.Response(result);
     }
 
     [HttpDelete("{id}")]
     public async Task<ApiResponse> DeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
-            return ApiBadRequestResponse.BADresponse("Id is Required");
+            return ApiResponse.BAD("Id is Required");
         var entity = await _unitOfWork.Cars.GetByIdAsync(id);
         if(entity == null)
-            return ApiNotFoundResponse.NOTresponse("This id is invalid");
+            return ApiResponse.NOT("This id is invalid");
         _unitOfWork.Cars.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
-        return ApiResponse.response(result);
+        return ApiResponse.Response(result);
     }
 }

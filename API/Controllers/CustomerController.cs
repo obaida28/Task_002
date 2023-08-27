@@ -39,15 +39,17 @@ public class CustomerController : ControllerBase
 
         var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
         var dtoResult = _map.Map<PagingResult<CustomerDTO>>(entityResult);
-        return ApiOkResponse.OKresponse(dtoResult);
+        return ApiResponse.OK(dtoResult);
     }
     
     [HttpGet("{id}")]
     public async Task<ApiResponse> GetAsync(Guid id) 
     {
+        if (id == Guid.Empty)
+            return ApiResponse.BAD("Id is Required");
         var getOne = await _unitOfWork.Customers.GetByIdAsync(id);
         var result = _map.Map<CustomerDTO>(getOne);
-        return ApiOkResponse.OKresponse(result);
+        return ApiResponse.OK(result);
     }
 
     [HttpPost]
@@ -57,18 +59,18 @@ public class CustomerController : ControllerBase
         await _unitOfWork.Customers.AddAsync(customer);
         var result = await _unitOfWork.SaveAsync();
         var dto = _map.Map<CustomerDTO>(customer);
-        return ApiResponse.response(result , dto);
+        return ApiResponse.Response(result , dto);
     }
     
     [HttpPut("{id}")]
     public async Task<ApiResponse> UpdateAsync(Guid id, CustomerUpdateDTO customerUpdateDTO)
     {
         if (id != customerUpdateDTO.Id)
-            return ApiBadRequestResponse.BADresponse("Object id is not compatible with the pass id");
+            return ApiResponse.BAD("Object id is not compatible with the pass id");
         Customer customer = _map.Map<Customer>(customerUpdateDTO);
         _unitOfWork.Customers.Update(customer);
         var result = await _unitOfWork.SaveAsync();
-        return ApiResponse.response(result);
+        return ApiResponse.Response(result);
     }
     
     [HttpDelete("{id}")]
@@ -76,9 +78,9 @@ public class CustomerController : ControllerBase
     {
         var entity = await _unitOfWork.Customers.GetByIdAsync(id);
         if(entity == null)
-            return ApiNotFoundResponse.NOTresponse("This id is invalid");
+            return ApiResponse.NOT("This id is invalid");
         _unitOfWork.Customers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
-        return ApiResponse.response(result);
+        return ApiResponse.Response(result);
     }
 }
