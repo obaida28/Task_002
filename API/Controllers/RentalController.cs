@@ -116,7 +116,7 @@ public class RentalController : ControllerBase
     }
 
     [HttpGet(template: "GetListAsync")]
-    public async Task<ApiResponse> GetListAsync(RentalRequestDTO input) 
+    public async Task<ApiResponse> GetListAsync([FromQuery]RentalRequestDTO input) 
     {
        IQueryable<Rental> query = _unitOfWork.Rentals.GetQueryable()
             .Include(r => r.Car).Include(r => r.Customer).Include(r => r.Driver);

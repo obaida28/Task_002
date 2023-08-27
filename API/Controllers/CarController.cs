@@ -13,7 +13,7 @@ public class CarController : ControllerBase
     }
     
     [HttpGet(template: "GetListAsync")]
-    public async Task<ApiResponse> GetListAsync(CarRequestDTO input) 
+    public async Task<ApiResponse> GetListAsync([FromQuery]CarRequestDTO input) 
     {
         var query = _unitOfWork.Cars.GetQueryable();
 

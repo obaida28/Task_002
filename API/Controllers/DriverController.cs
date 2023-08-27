@@ -13,11 +13,8 @@ public class DriverController : ControllerBase
     }
 
     [HttpGet(template: "GetListAsync")]
-    public async Task<ApiResponse> GetListAsync(DriverRequestDTO input)
+    public async Task<ApiResponse> GetListAsync([FromQuery]DriverRequestDTO input)
     {
-        if(input == null)
-            return ApiResponse.BAD("Requied input");
-
         var query = _unitOfWork.Drivers.GetQueryable();
 
         bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);

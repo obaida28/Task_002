@@ -13,11 +13,8 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet(template: "GetListAsync")]
-    public async Task<ApiResponse> GetListAsync(CustomerRequestDTO input)
+    public async Task<ApiResponse> GetListAsync([FromQuery]CustomerRequestDTO input)
     {
-        if(input == null)
-            throw new BadHttpRequestException("Requied input");
-        
         var query = _unitOfWork.Customers.GetQueryable();
 
         bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
