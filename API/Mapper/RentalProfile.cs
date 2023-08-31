@@ -17,9 +17,15 @@ public class RentalProfile : Profile
             .ForMember(dest => dest.CarType  ,opt => opt.MapFrom(src => src.Car.Type))
             .ForMember(dest => dest.CustomerId  ,opt => opt.MapFrom(src => src.Customer.Id))
             .ForMember(dest => dest.CustomerName  ,opt => opt.MapFrom(src => src.Customer.Name))
-            .ForMember(dest => dest.DriverId  ,opt => opt.MapFrom(src => src.Driver.Id))
+            .ForMember(dest => dest.DriverId  ,opt => opt.MapFrom(src => GetDriverId(src.Driver.Id)))
             .ForMember(dest => dest.DriverName  ,opt => opt.MapFrom(src => src.Driver.Name));
 
         CreateMap<PagingResult<Rental> , PagingResult<RentalDTO>>();
+    }
+    private object? GetDriverId(Guid id)
+    {
+        if(id == Guid.Empty)
+            return null;
+        return id;
     }
 }
