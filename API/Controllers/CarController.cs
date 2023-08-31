@@ -46,10 +46,8 @@ public class CarController : ControllerBase
                 _ => !IsDesc ? query.OrderBy(c => c.Number) : query.OrderByDescending(c => c.Number),
             };
         }
-        bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
-        query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
-
-        var entityResult = await query.GetResultAsync(withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
+        query = query.ApplyPaging(input);
+        var entityResult = await query.GetResultAsync(input , countFilterd);
         var dtoResult = _map.Map<PagingResult<CarDTO>>(entityResult);
         return ApiResponse.OK(dtoResult);
     }

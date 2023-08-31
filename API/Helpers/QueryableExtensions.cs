@@ -2,28 +2,26 @@ namespace API.Helpers;
 public static class QueryableExtensions
 {
     public static IQueryable<TInput> ApplyPaging<TInput>(
-    this IQueryable<TInput> query, int currentPage, int rowsPerPage, bool WithPaging) 
-    where TInput : class
+    this IQueryable<TInput> query, RequestDTO<TInput> input) 
+    where TInput : BaseEntity
     {
-      var itemsToSkip = (currentPage - 1) * rowsPerPage ;
-      var result = WithPaging ? query.Skip(itemsToSkip).Take(rowsPerPage) : query ;
+      input.RowsPerPage = input.RowsPerPage == 0 ? 1 : input.RowsPerPage;
+      input.CurrentPage = input.CurrentPage == 0 ? 1 : input.CurrentPage;
+      var itemsToSkip = (input.CurrentPage - 1) * input.RowsPerPage ;
+      var result = query.Skip(itemsToSkip).Take(input.RowsPerPage) ;
       return result;
     }
 
     public static async Task<PagingResult<TEntity>> GetResultAsync<TEntity>(
-    this IQueryable<TEntity> query, bool WithPaging , int currentPage, int rowsPerPage, int totalCount) 
-    where TEntity : class
+    this IQueryable<TEntity> query , RequestDTO<TEntity> input, int totalCount) 
+    where TEntity : BaseEntity
     {
         var result = await query.ToListAsync();
-        if(!WithPaging) 
-        {
-          return new PagingResult<TEntity> { Results = result , TotalRows = totalCount };
-        }
         return new PagingResult<TEntity>
         {
-          RowsPerPage = rowsPerPage,
-          CurrentPage = Math.Max(1,currentPage),
-          TotalPages = Math.Max(1,totalCount / rowsPerPage),
+          RowsPerPage = input.RowsPerPage,
+          CurrentPage = Math.Max(1,input.CurrentPage),
+          TotalPages = Math.Max(1,totalCount / input.RowsPerPage),
           TotalRows = totalCount,
           Results = result
         };

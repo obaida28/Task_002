@@ -33,12 +33,8 @@ public class DriverController : ControllerBase
             bool IsDesc = orderResult.Last() == "desc";
             query = !IsDesc ? query.OrderBy(d => d.Name) : query.OrderByDescending(d => d.Name);
         }
-        
-        bool withPaging = input.CurrentPage != 0 && input.RowsPerPage != 0;
-        query = query.ApplyPaging(input.CurrentPage, input.RowsPerPage , withPaging);
-
-        var entityResult = await query.GetResultAsync
-            (withPaging , input.CurrentPage, input.RowsPerPage , countFilterd);
+        query = query.ApplyPaging(input);
+        var entityResult = await query.GetResultAsync(input , countFilterd);
         var dtoResult = _map.Map<PagingResult<DriverDTO>>(entityResult);
         return ApiResponse.OK(dtoResult);
     }
