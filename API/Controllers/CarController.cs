@@ -110,6 +110,11 @@ public class CarController : ControllerBase
         {
             return ApiResponse.NOT("This id is invalid");
         }
+        bool WasRented = await _unitOfWork.Rentals.IsCarWasRentedAsync(entity.Number);
+        if(WasRented)
+        {
+            return ApiResponse.BAD("This car was rented");
+        }
         _unitOfWork.Cars.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.Response(result);
