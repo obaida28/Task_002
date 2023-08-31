@@ -17,7 +17,7 @@ public static class QueryableExtensions
         var result = await query.ToListAsync();
         if(!WithPaging) 
         {
-          return new PagingResult<TEntity> { Results = result };
+          return new PagingResult<TEntity> { Results = result , TotalRows = totalCount };
         }
         return new PagingResult<TEntity>
         {
