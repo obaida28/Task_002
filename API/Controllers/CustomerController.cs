@@ -18,7 +18,10 @@ public class CustomerController : ControllerBase
         var query = _unitOfWork.Customers.GetQueryable();
 
         bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
-        if(withSearching) query = query.Where(c => c.Name.ToLower().Contains(input.SearchingValue));
+        if(withSearching) 
+        {
+            query = query.Where(c => c.Name.ToLower().Contains(input.SearchingValue));
+        }
         
         int countFilterd = await query.CountAsync();
 
@@ -43,7 +46,9 @@ public class CustomerController : ControllerBase
     public async Task<ApiResponse> GetAsync(Guid id) 
     {
         if (id == Guid.Empty)
+        {
             return ApiResponse.BAD("Id is Required");
+        }
         var getOne = await _unitOfWork.Customers.GetByIdAsync(id);
         var result = _map.Map<CustomerDTO>(getOne);
         return ApiResponse.OK(result);
@@ -63,7 +68,9 @@ public class CustomerController : ControllerBase
     public async Task<ApiResponse> UpdateAsync(Guid id, CustomerUpdateDTO customerUpdateDTO)
     {
         if (id != customerUpdateDTO.Id)
+        {
             return ApiResponse.BAD("Object id is not compatible with the pass id");
+        }
         Customer customer = _map.Map<Customer>(customerUpdateDTO);
         _unitOfWork.Customers.Update(customer);
         var result = await _unitOfWork.SaveAsync();
@@ -75,7 +82,9 @@ public class CustomerController : ControllerBase
     {
         var entity = await _unitOfWork.Customers.GetByIdAsync(id);
         if(entity == null)
+        {
             return ApiResponse.NOT("This id is invalid");
+        }
         _unitOfWork.Customers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.Response(result);

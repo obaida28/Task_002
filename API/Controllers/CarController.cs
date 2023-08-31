@@ -58,7 +58,9 @@ public class CarController : ControllerBase
     public async Task<ApiResponse> GetAsync(Guid id) 
     {
         if (id == Guid.Empty)
+        {
             return ApiResponse.BAD("Id is Required");
+        }
         var getOne = await _unitOfWork.Cars.GetByIdAsync(id);
         var result = _map.Map<CarDTO>(getOne);
         return ApiResponse.OK(result);
@@ -68,7 +70,10 @@ public class CarController : ControllerBase
     public async Task<ApiResponse> CreateAsync(CarCreateDto input)
     {
         bool isExist = await _unitOfWork.Cars.IsExistNumberAsync(input.Number);
-        if(isExist) return ApiResponse.BAD( "The car number is unique !");
+        if(isExist)
+        {
+             return ApiResponse.BAD( "The car number is unique !");
+        }
         var entity = _map.Map<Car>(input);
         await _unitOfWork.Cars.AddAsync(entity);
         var result = await _unitOfWork.SaveAsync();
@@ -80,9 +85,13 @@ public class CarController : ControllerBase
     public async Task<ApiResponse> UpdateAsync(Guid id, CarUpdateDto input)
     {
         if (id == Guid.Empty)
-             return ApiResponse.BAD("Id is Required");
+        {
+            return ApiResponse.BAD("Id is Required");
+        }
         if (id != input.Id)
+        {
             return ApiResponse.BAD("Object id is not compatible with the pass id");
+        }
         Car car = _map.Map<Car>(input);
         _unitOfWork.Cars.Update(car);
         var result = await _unitOfWork.SaveAsync();
@@ -93,10 +102,14 @@ public class CarController : ControllerBase
     public async Task<ApiResponse> DeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
+        {
             return ApiResponse.BAD("Id is Required");
+        }
         var entity = await _unitOfWork.Cars.GetByIdAsync(id);
         if(entity == null)
+        {
             return ApiResponse.NOT("This id is invalid");
+        }
         _unitOfWork.Cars.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.Response(result);

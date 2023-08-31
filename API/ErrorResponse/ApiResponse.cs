@@ -13,34 +13,53 @@
             Message = message ?? GetDefaultMessageForStatusCode(statusCode);
         }
 
-        public static ApiResponse Response (int saveResult , object showResult = null) => 
-            saveResult == 0 ? BAD("Bad Request") : OK(showResult);       
+        public static ApiResponse Response (int saveResult , object showResult = null)
+        {
+           return saveResult == 0 ? BAD("Bad Request") : OK(showResult);       
+        }
 
-        public static ApiResponse Response (object showResult = null) => OK(showResult);
+        public static ApiResponse Response (object showResult = null) 
+        {
+            return OK(showResult);
+        }
         /// <summary>
         /// API OK Response 200
         /// </summary>
         /// <param name="showResult"></param>
         /// <returns></returns>
-        public static ApiResponse OK(object showResult = null) => new ApiOkResponse(showResult);
-        public static ApiResponse BAD(ModelStateDictionary modelState) => new ApiBadRequestResponse(modelState);
+        public static ApiResponse OK(object showResult = null) 
+        {
+            return new ApiOkResponse(showResult);
+        }
+        public static ApiResponse BAD(ModelStateDictionary modelState) 
+        {
+            return new ApiBadRequestResponse(modelState);
+        }
         /// <summary>
         /// API Bad Request 400
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static ApiResponse BAD(string message) => new ApiBadRequestResponse(message);
+        public static ApiResponse BAD(string message) 
+        {
+            return new ApiBadRequestResponse(message);
+        }
         /// <summary>
         /// API Not Found 404
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static ApiResponse NOT(string message) => new ApiNotFoundResponse(message);
+        public static ApiResponse NOT(string message) 
+        {
+            return new ApiNotFoundResponse(message);
+        }
         
         public static object GetResult(ApiResponse response)
         {
             if(response is ApiOkResponse okResponse)
+            {
                 return okResponse.Result;
+            }
             return null;
         }
 
@@ -59,7 +78,10 @@
         {
             public object? Result { get; }
             public ApiOkResponse() : base(200) => Result = null;
-            public ApiOkResponse(object result) : base(200) => Result = result;
+            public ApiOkResponse(object result) : base(200) 
+            {
+                 Result = result;
+            }
             //public static ApiResponse OKresponse(object result = null) => new ApiOkResponse(result);
         }
         private class ApiBadRequestResponse : ApiResponse
@@ -69,7 +91,9 @@
             public ApiBadRequestResponse(ModelStateDictionary modelState) : base(400)
             {
                 if (modelState.IsValid)
+                {
                     throw new ArgumentException("ModelState must be invalid", nameof(modelState));
+                }
                 Errors = modelState.SelectMany(x => x.Value.Errors)
                     .Select(x => x.ErrorMessage).ToArray();
             }

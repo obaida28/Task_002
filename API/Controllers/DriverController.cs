@@ -18,7 +18,10 @@ public class DriverController : ControllerBase
         var query = _unitOfWork.Drivers.GetQueryable();
 
         bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
-        if(withSearching) query = query.Where(d => d.Name.ToLower().Contains(input.SearchingValue));
+        if(withSearching) 
+        {
+            query = query.Where(d => d.Name.ToLower().Contains(input.SearchingValue));
+        }
 
         int countFilterd = await query.CountAsync();
 
@@ -44,7 +47,9 @@ public class DriverController : ControllerBase
     public async Task<ApiResponse> GetAsync(Guid id) 
     {
         if (id == Guid.Empty)
+        {
             return ApiResponse.BAD("Id is Required");
+        }
         var getOne = await _unitOfWork.Drivers.GetByIdAsync(id);
         var result = _map.Map<DriverDTO>(getOne);
         return ApiResponse.OK(result);
@@ -64,9 +69,13 @@ public class DriverController : ControllerBase
     public async Task<ApiResponse> UpdateAsync(Guid id, DriverUpdateDTO input)
     {
         if (id == Guid.Empty)
+        {
             return ApiResponse.BAD("Id is Required");
+        }
         if (id != input.Id)
+        {
             return ApiResponse.BAD("Object id is not compatible with the pass id");
+        }
         Driver driver = _map.Map<Driver>(input);
         _unitOfWork.Drivers.Update(driver);
         var result = await _unitOfWork.SaveAsync();
@@ -77,10 +86,14 @@ public class DriverController : ControllerBase
     public async Task<ApiResponse> DeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
+        {
             return ApiResponse.BAD("Id is Required");
+        }
         var entity = await _unitOfWork.Drivers.GetByIdAsync(id);
         if(entity == null)
+        {
             return ApiResponse.NOT("This id is invalid");
+        }
         _unitOfWork.Drivers.Delete(entity);
         var result = await _unitOfWork.SaveAsync();
         return ApiResponse.Response(result);

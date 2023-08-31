@@ -15,7 +15,10 @@ public static class QueryableExtensions
     where TEntity : class
     {
         var result = await query.ToListAsync();
-        if(!WithPaging) return new PagingResult<TEntity> { Results = result };
+        if(!WithPaging) 
+        {
+          return new PagingResult<TEntity> { Results = result };
+        }
         return new PagingResult<TEntity>
         {
           RowsPerPage = rowsPerPage,
