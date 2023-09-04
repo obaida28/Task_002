@@ -1,11 +1,11 @@
 namespace API.DTOs;
 public class RentalUpdateDTO //: IValidatableObject
 {
-    [GuidNotEmpty(ErrorMessage = "Id must have a non-default value.")]
+    [GuidNotEmpty(ErrorMessage = "Id is required")]
     public Guid Id { get; set; }
-    [GuidNotEmpty(ErrorMessage = "Car Id must have a non-default value.")]
+    [GuidNotEmpty(ErrorMessage = "Car Id  is required")]
     public Guid CarId { get; set; }
-    [GuidNotEmpty(ErrorMessage = "Customer Id must have a non-default value.")]
+    [GuidNotEmpty(ErrorMessage = "Customer Id  is required")]
     public Guid CustomerId { get; set; }
     public Guid? DriverId { get; set; }
     [RequiredDate(ErrorMessage = "Start Date is required")]
