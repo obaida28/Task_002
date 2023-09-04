@@ -1,3 +1,6 @@
+using API.Extensions;
+using Core.Extensions;
+
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
@@ -12,10 +15,9 @@ public class RentalController : ControllerBase
         _map = map;
     }  
     [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<ApiResponse> CheckDriver(IQueryable<Rental> query , Guid driverId ,
-         DateTime startDate, DateTime endDate)
+    public async Task<ApiResponse> CheckDriver(Guid driverId ,DateTime startDate, DateTime endDate)
     {
-        List<Guid> lists = new List<Guid>();
+        List<Guid> lists = new();
         while (!lists.Contains(driverId))
         {
             var entityDriver = await _unitOfWork.Drivers.GetByIdAsync(driverId);
@@ -23,7 +25,8 @@ public class RentalController : ControllerBase
             {
                 return ApiResponse.NOT("This driver id is invalid");
             }
-            bool available = await IsDriverAvailableBetweenDates(query , driverId , startDate , endDate);
+            bool available = await _unitOfWork.Rentals.IsDriverAvailableBetweenDatesAsync
+                (driverId , startDate , endDate);
             if(entityDriver.IsAvailable && available)
             {
                 return ApiResponse.OK(entityDriver);
@@ -39,23 +42,7 @@ public class RentalController : ControllerBase
         return ApiResponse.BAD("This driver is not available");
     }
     [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<bool> IsDriverAvailableBetweenDates(IQueryable<Rental> query , Guid driverId ,
-         DateTime startDate, DateTime EndDate )
-    {
-        var _query = query.Include(r => r.Driver);
-        var isNotAvailableDriver = await _query.AnyAsync
-        (r => (r.State == "Created" || r.State == "Active") && r.DriverId == driverId && 
-            (
-                (startDate.Date >= r.StartDate && startDate.Date < r.EndDate) ||
-                (EndDate.Date > r.StartDate && EndDate.Date <= r.EndDate)
-            )
-        );
-        return !isNotAvailableDriver; 
-// return ApiResponse.BAD("This driver is not available between this dates !"); 
-    }
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<ApiResponse> CheckCar(IQueryable<Rental> query , Guid carId ,
-         DateTime startDate, DateTime EndDate )
+    public async Task<ApiResponse> CheckCar(Guid carId , DateTime startDate, DateTime endDate )
     {
         var entityCar = await _unitOfWork.Cars.GetByIdAsync(carId);
         if(entityCar == null)
@@ -66,15 +53,8 @@ public class RentalController : ControllerBase
         {
             return ApiResponse.BAD("This car is not available !");
         }
-        var _query = query.Include(r => r.Car);
-        var isNotAvailableCar = await _query.AnyAsync
-            (r => (r.State == "Created" || r.State == "Active") && r.CarId == carId &&
-                (
-                    (startDate.Date >= r.StartDate && startDate.Date < r.EndDate) ||
-                    (EndDate.Date > r.StartDate && EndDate.Date <= r.EndDate)
-                )
-            );
-        if(isNotAvailableCar)
+        var isAvailableCar = await _unitOfWork.Rentals.IsCarAvailableBetweenDatesAsync(carId ,startDate , endDate);
+        if(isAvailableCar)
         {
             return ApiResponse.BAD("This car is not available between this dates !");
         }
@@ -84,11 +64,10 @@ public class RentalController : ControllerBase
     [HttpPost]
     public async Task<ApiResponse> CreateAsync(RentalCreateDto input)
     {
-        var queryRental = _unitOfWork.Rentals.GetQueryable();
         input.StartDate = input.StartDate.Date;
         input.EndDate = input.EndDate.Date.AddDays(1);
         //Car Check
-        var carCheck = await CheckCar(queryRental,input.CarId,input.StartDate,input.EndDate);
+        var carCheck = await CheckCar(input.CarId,input.StartDate,input.EndDate);
         if(carCheck.StatusCode != 200) 
         {
             return carCheck;
@@ -109,7 +88,7 @@ public class RentalController : ControllerBase
         Driver? entityDriver = null;     
         if(IsDriverPassed)
         {
-            var driverCheck = await CheckDriver(queryRental,(Guid)input.DriverId,input.StartDate,input.EndDate);
+            var driverCheck = await CheckDriver((Guid)input.DriverId,input.StartDate,input.EndDate);
             if(driverCheck.StatusCode != 200) return driverCheck;
             entityDriver = ApiResponse.GetResult(driverCheck) as Driver;
             input.DriverId = entityDriver.Id;
@@ -143,33 +122,28 @@ public class RentalController : ControllerBase
     {
        IQueryable<Rental> query = _unitOfWork.Rentals.GetQueryable()
             .Include(r => r.Car).Include(r => r.Customer).Include(r => r.Driver);
-        bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
+        bool withSearching = input.WithSearching();
         if(withSearching) 
         {
             bool withDecimal = decimal.TryParse(input.SearchingValue, out decimal decimalValue);
             bool withInt = int.TryParse(input.SearchingValue, out int intValue);
              query = query.Where(r => 
-                r.Car.Type.ToLower().Contains(input.SearchingValue) || 
-                r.Car.Color.ToLower().Contains(input.SearchingValue) || 
-                r.Car.Number.ToLower().Contains(input.SearchingValue) ||
+                r.Car.Type.In(input.SearchingValue) || 
+                r.Car.Color.In(input.SearchingValue) || 
+                r.Car.Number.In(input.SearchingValue) ||
                 (withDecimal && r.Car.EngineCapacity == decimalValue) ||
-                r.Customer.Name.ToLower().Contains(input.SearchingValue) ||
-                r.Driver.Name.ToLower().Contains(input.SearchingValue) ||
-                r.State.ToLower().Contains(input.SearchingValue) || 
+                r.Customer.Name.In(input.SearchingValue) ||
+                r.Driver.Name.In(input.SearchingValue) ||
+                r.State.In(input.SearchingValue) || 
                 (withInt && r.DailyRate == intValue) ||
-                (r.StartDate.Date >= input.SearchDate && r.EndDate.Date <= input.SearchDate));
+                input.SearchDate.DateBetween(r.StartDate,r.EndDate));
         }
-
         int countFilterd = await query.CountAsync();
-
-        bool withSorting = !string.IsNullOrEmpty(input.OrderByData);
+        bool withSorting = input.WithSorting();
         if(withSorting) 
-        {
-            string dataOrder = input.OrderByData.ToLower();
-            string[] orderResult = dataOrder.Split(" ");
-            // int indexSpace = dataOrder.IndexOf(" ");// string columnNameOrderBy = dataOrder[..indexSpace];// bool IsDesc = dataOrder[(indexSpace + 1)..] == "desc";                
-            bool IsDesc = orderResult.Last() == "desc";
-            query = orderResult.First() switch
+        {       
+            bool IsDesc = input.IsOrderDesc();
+            query = input.GetColumnOrder() switch
             {
                 "type" => !IsDesc ? query.OrderBy(r => r.Car.Type) : query.OrderByDescending(r => r.Car.Type),
                 "color" => !IsDesc ? query.OrderBy(r => r.Car.Color) : query.OrderByDescending(r => r.Car.Color),
@@ -204,8 +178,6 @@ public class RentalController : ControllerBase
         input.StartDate = input.StartDate.Date;
         input.EndDate = input.EndDate.Date.AddDays(1);
         var entityRental = await _unitOfWork.Rentals.GetByIdAsync(id);
-        var queryRental = _unitOfWork.Rentals.GetQueryable();
-
         // if(!entityRental.IsActive)
         //     return ApiResponse.BAD("This rental is not active !");
         bool changeCar = entityRental.CarId != input.CarId;
@@ -216,7 +188,7 @@ public class RentalController : ControllerBase
         if(changeCar)
         {
             //Car Check
-            var carCheck = await CheckCar(queryRental,input.CarId,input.StartDate,input.EndDate);
+            var carCheck = await CheckCar(input.CarId,input.StartDate,input.EndDate);
             if(carCheck.StatusCode != 200) 
             {
                 return carCheck;
@@ -237,7 +209,7 @@ public class RentalController : ControllerBase
         Driver? entityDriver = null;     
         if(IsDriverPassed && changeDriver)
         {
-            var driverCheck = await CheckDriver(queryRental,(Guid)input.DriverId,input.StartDate,input.EndDate);
+            var driverCheck = await CheckDriver((Guid)input.DriverId,input.StartDate,input.EndDate);
             if(driverCheck.StatusCode != 200) 
             {
                 return driverCheck;
