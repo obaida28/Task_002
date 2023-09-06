@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Migrations
 {
-    public partial class create_tables : Migration
+    public partial class CreateTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -65,10 +65,11 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CarId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DriverId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DailyRate = table.Column<int>(type: "int", nullable: false)
+                    DriverId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "date", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "date", nullable: false),
+                    DailyRate = table.Column<int>(type: "int", nullable: false),
+                    State = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false, defaultValue: "Created")
                 },
                 constraints: table =>
                 {
@@ -89,8 +90,7 @@ namespace Infrastructure.Migrations
                         name: "FK_Rentals_Drivers_DriverId",
                         column: x => x.DriverId,
                         principalTable: "Drivers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
@@ -98,9 +98,9 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("36041f05-5f49-4168-b151-650d7bbd36a1"), "Customer2" },
-                    { new Guid("c42f587e-f172-48ed-965e-a7428f2c9af7"), "Customer3" },
-                    { new Guid("c941d6c1-2621-4054-8eef-359dbddd16a8"), "Customer1" }
+                    { new Guid("3452a754-ed5e-4187-8ff5-4216c19da9ad"), "Customer2" },
+                    { new Guid("94f60eba-5145-446f-9060-71c6661d0661"), "Customer1" },
+                    { new Guid("9f6f8e47-fb98-45ce-aac7-e293831fb887"), "Customer3" }
                 });
 
             migrationBuilder.InsertData(
@@ -108,9 +108,9 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "IsAvailable", "Name", "SubstituteId" },
                 values: new object[,]
                 {
-                    { new Guid("92cc4a11-8d9c-4256-bc66-686ecf59cffa"), false, "driver1", null },
-                    { new Guid("a54cbc66-fabb-4293-b7a6-ba6ba61a4dd5"), false, "driver3", null },
-                    { new Guid("c186dc1b-8f57-4b9f-b9b8-9ece143299c3"), false, "driver2", null }
+                    { new Guid("0a769782-8eba-4643-9b24-fd043fd3de4f"), true, "driver3", null },
+                    { new Guid("c04c94a5-9ae0-4a1a-bbb2-bd9cc2c311c3"), true, "driver2", null },
+                    { new Guid("f5bbca7a-10af-4350-be13-89c8cdcfc6bb"), true, "driver1", null }
                 });
 
             migrationBuilder.CreateIndex(

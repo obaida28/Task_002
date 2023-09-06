@@ -1,9 +1,8 @@
-using Microsoft.Extensions.Caching.Memory;
-
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [ApiValidationFilter]
+[Authorize]
 public class CarInMemoryController : ControllerBase 
 {
     private readonly IUnitOfWork _unitOfWork;

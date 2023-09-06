@@ -1,9 +1,13 @@
-﻿namespace Infrastructure.Data;
-public class ApplicationDbContext : DbContext 
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
+namespace Infrastructure.Data;
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser> 
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+         base.OnModelCreating(modelBuilder);
         // modelBuilder.Entity<Rental>()
         //     .HasKey(r => new { r.CarNumber , r.CustomerId });
 
@@ -43,6 +47,19 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Rental>().Property(r => r.State).HasDefaultValue("Created");
         modelBuilder.Entity<Rental>().Property(r => r.StartDate).HasColumnType("date");
         modelBuilder.Entity<Rental>().Property(r => r.EndDate).HasColumnType("date");
+        // modelBuilder.Entity<IdentityRole>().HasData(
+        //     new IdentityRole
+        //     {
+        //         Name = "admin" , NormalizedName = "ADMIN"
+        //     },
+        //     new IdentityRole
+        //     {
+        //         Name = "user" , NormalizedName = "USER"
+        //     }
+        // );
+        // modelBuilder.Entity<IdentityUserLogin<string>>().HasNoKey();
+        //  modelBuilder.Entity<ApplicationUser>().HasKey
+        //  (c=> c.Id);
     }
     public virtual DbSet<Car> Cars {get; set;}
     public virtual DbSet<Customer> Customers { get; set; }

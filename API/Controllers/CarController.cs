@@ -2,6 +2,7 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [ApiValidationFilter]
+[Authorize]
 public class CarController : ControllerBase 
 {
     private readonly IUnitOfWork _unitOfWork;

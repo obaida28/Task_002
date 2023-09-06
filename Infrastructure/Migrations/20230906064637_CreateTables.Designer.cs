@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230814084037_create_tables")]
-    partial class create_tables
+    [Migration("20230906064637_CreateTables")]
+    partial class CreateTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -73,17 +73,17 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c941d6c1-2621-4054-8eef-359dbddd16a8"),
+                            Id = new Guid("94f60eba-5145-446f-9060-71c6661d0661"),
                             Name = "Customer1"
                         },
                         new
                         {
-                            Id = new Guid("36041f05-5f49-4168-b151-650d7bbd36a1"),
+                            Id = new Guid("3452a754-ed5e-4187-8ff5-4216c19da9ad"),
                             Name = "Customer2"
                         },
                         new
                         {
-                            Id = new Guid("c42f587e-f172-48ed-965e-a7428f2c9af7"),
+                            Id = new Guid("9f6f8e47-fb98-45ce-aac7-e293831fb887"),
                             Name = "Customer3"
                         });
                 });
@@ -115,20 +115,20 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("92cc4a11-8d9c-4256-bc66-686ecf59cffa"),
-                            IsAvailable = false,
+                            Id = new Guid("f5bbca7a-10af-4350-be13-89c8cdcfc6bb"),
+                            IsAvailable = true,
                             Name = "driver1"
                         },
                         new
                         {
-                            Id = new Guid("c186dc1b-8f57-4b9f-b9b8-9ece143299c3"),
-                            IsAvailable = false,
+                            Id = new Guid("c04c94a5-9ae0-4a1a-bbb2-bd9cc2c311c3"),
+                            IsAvailable = true,
                             Name = "driver2"
                         },
                         new
                         {
-                            Id = new Guid("a54cbc66-fabb-4293-b7a6-ba6ba61a4dd5"),
-                            IsAvailable = false,
+                            Id = new Guid("0a769782-8eba-4643-9b24-fd043fd3de4f"),
+                            IsAvailable = true,
                             Name = "driver3"
                         });
                 });
@@ -149,14 +149,20 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<Guid?>("DriverId")
-                        .IsRequired()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("Created");
 
                     b.HasKey("Id");
 
@@ -195,9 +201,7 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("Core.Entites.Driver", "Driver")
                         .WithMany("Rentals")
-                        .HasForeignKey("DriverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DriverId");
 
                     b.Navigation("Car");
 
