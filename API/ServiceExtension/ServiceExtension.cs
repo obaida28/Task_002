@@ -11,7 +11,9 @@ public static class ServiceExtension
         services.AddScoped<ICarRepository, CarRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IDriverRepository, DriverRepository>();
-
+        services.AddScoped<IRentalRepository, RentalRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         return services;
     }
 }

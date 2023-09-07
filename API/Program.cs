@@ -3,15 +3,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-// builder.Services.AddMemoryCache();
+// builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddMemoryCache();
 // builder.Services.AddScoped<ICarRepository, CarRepository>();
 // builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 // builder.Services.AddScoped<IDriverRepository, DriverRepository>();
 // builder.Services.AddScoped<ICarCache, CarCache>();
 // builder.Services.AddScoped<ICarService, CarService>();
 // builder.Services.AddScoped(typeof(IGenericCache<>), typeof(GenericCache<>));
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+// builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddAuthentication(options =>
 {

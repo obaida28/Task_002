@@ -5,5 +5,6 @@ public interface IUnitOfWork : IDisposable
     ICustomerRepository Customers { get; }
     IDriverRepository Drivers { get; }
     IRentalRepository Rentals { get; }
+    IUserRepository Users { get; }
     Task<int> SaveAsync();
 }

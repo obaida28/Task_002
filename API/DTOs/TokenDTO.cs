@@ -1,8 +1,7 @@
 namespace Core.Entites;
 public class TokenDTO
 {
-    public string? Message { get; set; }
-    public bool IsAuthenticated { get; set; }
+    // public bool IsAuthenticated { get; set; }
     public string? Username { get; set; }
     public string? Email { get; set; }
     public List<string>? Roles { get; set; }
