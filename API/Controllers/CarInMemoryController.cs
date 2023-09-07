@@ -15,7 +15,7 @@ public class CarInMemoryController : ControllerBase
         _cache = cache;
     }
     [ApiExplorerSettings(IgnoreApi = true)]
-    public IQueryable<Car> Searching(IQueryable<Car> cars , string searchingValue) 
+    public IEnumerable<Car> Searching(IEnumerable<Car> cars , string searchingValue) 
     {
         bool withSearching = !string.IsNullOrEmpty(searchingValue);
         if(withSearching) 
@@ -31,7 +31,7 @@ public class CarInMemoryController : ControllerBase
         return cars;
     }
     [ApiExplorerSettings(IgnoreApi = true)]
-    public IQueryable<Car> Sorting(IQueryable<Car> cars , string orderByData) 
+    public IEnumerable<Car> Sorting(IEnumerable<Car> cars , string orderByData) 
     {
         bool withSorting = !string.IsNullOrEmpty(orderByData);
         if(withSorting) 
@@ -55,20 +55,25 @@ public class CarInMemoryController : ControllerBase
     [HttpGet(template: "GetListAsync")]
     public async Task<ApiResponse> GetListAsync([FromQuery]CarRequestDTO input) 
     {
-        IQueryable<Car> cars;
+        int countFilterd;
+        PagingResult<Car> entityResult;
         if (_cache.TryGetValue("cars", out IEnumerable<Car> _cars)) 
         {
-            cars = _cars as IQueryable<Car>;
+           _cars = Searching(_cars , input.SearchingValue);
+           countFilterd = _cars.Count();
+           _cars = Sorting(_cars,input.OrderByData);
+           _cars = _cars.ApplyPaging(input);
+           entityResult = _cars.GetResult(input , countFilterd);
         }
         else
         {
-            cars = _unitOfWork.Cars.GetQueryable();
+            IQueryable<Car> cars = _unitOfWork.Cars.GetQueryable();
+            cars = cars.Searching(input.SearchingValue);
+            countFilterd = await cars.CountAsync();
+            cars = cars.Sorting(input.OrderByData);
+            cars = cars.ApplyPaging(input);
+            entityResult = await cars.GetResultAsync(input , countFilterd);
         }
-        cars = Searching(cars,input.SearchingValue);
-        int countFilterd = await cars.CountAsync();
-        cars = Sorting(cars,input.OrderByData);
-        cars = cars.ApplyPaging(input);
-        var entityResult = await cars.GetResultAsync(input , countFilterd);
         var dtoResult = _map.Map<PagingResult<CarDTO>>(entityResult);
         return ApiResponse.OK(dtoResult);
     }

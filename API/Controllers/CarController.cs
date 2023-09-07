@@ -17,36 +17,9 @@ public class CarController : ControllerBase
     public async Task<ApiResponse> GetListAsync([FromQuery]CarRequestDTO input) 
     {
         var query = _unitOfWork.Cars.GetQueryable();
-
-        bool withSearching = !string.IsNullOrEmpty(input.SearchingValue);
-        if(withSearching) 
-        {
-            bool withDecimal = decimal.TryParse(input.SearchingValue, out decimal decimalValue);
-            bool withInt = int.TryParse(input.SearchingValue, out int intValue);
-             query = query.Where(c => 
-                c.Type.ToLower().Contains(input.SearchingValue) || 
-                c.Color.ToLower().Contains(input.SearchingValue) || 
-                c.Number.ToLower().Contains(input.SearchingValue) ||
-                (withDecimal && c.EngineCapacity == decimalValue) || (withInt && c.DailyRate == intValue));
-        }
-           
+        query = query.Searching(input.SearchingValue);
         int countFilterd = await query.CountAsync();
-
-        bool withSorting = !string.IsNullOrEmpty(input.OrderByData);
-        if(withSorting) 
-        {
-            string dataOrder = input.OrderByData.ToLower();
-            string[] orderResult = dataOrder.Split(" ");
-            bool IsDesc = orderResult.Last() == "desc";
-            query = orderResult.First() switch
-            {
-                "type" => !IsDesc ? query.OrderBy(c => c.Type) : query.OrderByDescending(c => c.Type),
-                "color" => !IsDesc ? query.OrderBy(c => c.Color) : query.OrderByDescending(c => c.Color),
-                "enginecapacity" => !IsDesc ? query.OrderBy(c => c.EngineCapacity) : query.OrderByDescending(c => c.EngineCapacity),
-                "dailyrate" => !IsDesc ? query.OrderBy(c => c.DailyRate) : query.OrderByDescending(c => c.DailyRate),
-                _ => !IsDesc ? query.OrderBy(c => c.Number) : query.OrderByDescending(c => c.Number),
-            };
-        }
+        query = query.Sorting(input.OrderByData);
         query = query.ApplyPaging(input);
         var entityResult = await query.GetResultAsync(input , countFilterd);
         var dtoResult = _map.Map<PagingResult<CarDTO>>(entityResult);

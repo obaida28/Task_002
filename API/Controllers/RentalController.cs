@@ -33,7 +33,7 @@ public class RentalController : ControllerBase
             }
             lists.Add(driverId);
             var _driverId = entityDriver.SubstituteId;
-            if(_driverId is null)
+            if(!_driverId.HasValue)
             {
                 return ApiResponse.NOT("This driver is not available");
             }
@@ -84,7 +84,7 @@ public class RentalController : ControllerBase
             return ApiResponse.NOT("This customer id is invalid");
         }
         //Driver check
-        bool IsDriverPassed = input.DriverId != null;
+        bool IsDriverPassed = input.DriverId.HasValue;
         Driver? entityDriver = null;     
         if(IsDriverPassed)
         {
@@ -205,7 +205,7 @@ public class RentalController : ControllerBase
             }
         }
 
-        bool IsDriverPassed = input.DriverId != null;
+        bool IsDriverPassed = input.DriverId.HasValue;
         Driver? entityDriver = null;     
         if(IsDriverPassed && changeDriver)
         {
@@ -305,7 +305,7 @@ public class RentalController : ControllerBase
         }
         var entityCar = await _unitOfWork.Cars.GetByIdAsync(entity.CarId);
         entityCar.IsAvailable = true;
-        if(entity.DriverId != null)
+        if(entity.DriverId.HasValue)
         {
             var entityDriver = await _unitOfWork.Drivers.GetByIdAsync((Guid)entity.DriverId);
             entityDriver.IsAvailable = true;
